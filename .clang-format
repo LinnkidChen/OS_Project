@@ -1,0 +1,8 @@
+BasedOnStyle: LLVM
+BinPackParameters: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AlwaysBreakTemplateDeclarations: true
+IndentPPDirectives: AfterHash
+AlignOperands: Align
+AlignConsecutiveAssignments: true
+AlignTrailingComments: true
