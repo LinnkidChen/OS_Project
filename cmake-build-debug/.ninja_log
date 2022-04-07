@@ -1,0 +1,19 @@
+# ninja log v5
+0	673	6708463953769106	CMakeFiles/memory.dir/main.cpp.obj	b1f988e7d5f18e74
+675	823	6708463955259908	memory.exe	b4a79f87ee6c18e
+17	286	6708521079516746	CMakeFiles/memory.dir/memory.cpp.obj	f919a9b16f954384
+4	617	6708536917316828	CMakeFiles/memory.dir/main.cpp.obj	b1f988e7d5f18e74
+17	428	6708539284637955	CMakeFiles/memory.dir/memory.cpp.obj	f919a9b16f954384
+3	629	6708539286648495	CMakeFiles/memory.dir/main.cpp.obj	b1f988e7d5f18e74
+630	775	6708539288074700	memory.exe	baff7e2070bbbf6d
+17	387	6708543973418210	CMakeFiles/memory.dir/memory.cpp.obj	f919a9b16f954384
+17	411	6708544456463927	CMakeFiles/memory.dir/memory.cpp.obj	f919a9b16f954384
+17	426	6708546797571977	CMakeFiles/memory.dir/memory.cpp.obj	f919a9b16f954384
+3	678	6708546800126802	CMakeFiles/memory.dir/main.cpp.obj	b1f988e7d5f18e74
+678	840	6708546801639500	memory.exe	baff7e2070bbbf6d
+17	431	6708550081418984	CMakeFiles/memory.dir/memory.cpp.obj	f919a9b16f954384
+3	669	6708550083795167	CMakeFiles/memory.dir/main.cpp.obj	b1f988e7d5f18e74
+670	817	6708550085249801	memory.exe	baff7e2070bbbf6d
+3	786	6710343586297868	CMakeFiles/memory.dir/memory.cpp.obj	f919a9b16f954384
+41	894	6710343587394956	CMakeFiles/memory.dir/main.cpp.obj	b1f988e7d5f18e74
+894	1307	6710343591491407	memory.exe	baff7e2070bbbf6d
