@@ -13,22 +13,29 @@
 
 namespace memory {
 
+// 页大小，单位：字节
 static constexpr const size_t MEMORY_PAGE_SIZE = 4096; // byte
-static constexpr const size_t MEMORY_PAGE_NUM  = 4096;
+// 页的数量
+static constexpr const size_t MEMORY_PAGE_NUM = 4096;
+// 内存总大小
 static constexpr const size_t MEMORY_POOL_SIZE =
     MEMORY_PAGE_NUM * MEMORY_PAGE_SIZE;
 
+/// 页面类，仅用于表示一个页的存储空间，这个类的大小为MEMORY_PAGE_SIZE字节。
+/// 可平凡拷贝，可平凡析构，可以安全地直接获取并访问该类的地址。
 class MemoryPage final {
 public:
     MemoryPage() noexcept                   = default;
     MemoryPage(const MemoryPage &) noexcept = default;
     ~MemoryPage()                           = default;
 
+    /// 获取这个页第pos个字节。pos应当总是小于页面大小。
     void *Get(size_t pos) noexcept {
         assert(pos < MEMORY_PAGE_SIZE);
         return std::addressof(pageData[pos]);
     }
 
+    /// 获取这个页第pos个字节。pos应当总是小于页面大小。
     const void *Get(size_t pos) const noexcept {
         assert(pos < MEMORY_PAGE_SIZE);
         return std::addressof(pageData[pos]);
@@ -38,6 +45,8 @@ private:
     std::array<uint8_t, MEMORY_PAGE_SIZE> pageData;
 };
 
+/// 指针异常，当指针操作发生非法访问时抛出。
+/// NOTE: 直接访问进程管理杀死当前进程而非抛出异常。
 class PointerException final : public std::exception {
 public:
     PointerException() noexcept                         = default;
@@ -48,6 +57,33 @@ public:
     const char *what() const noexcept override { return "segmentation fault."; }
 };
 
+/// 指针类，指向一块模拟内存。
+///
+/// 该类模拟裸指针设计，设计上允许像裸指针一样访问。
+/// 比如，使用Pointer<char>表示指向char的指针。
+///
+/// Pointer<char> ptr应当支持以下操作，->后面为返回类型：
+/// 获取内容：
+/// - *ptr   -> char &
+/// - ptr[i] -> char &
+/// - ptr->  -> char &（注意，第一个->是运算符，当T是struct或者class时有用）
+/// 偏移：
+/// - ptr++         -> Pointer<char>
+/// - ptr--         -> Pointer<char>
+/// - ++ptr         -> Pointer<char> &
+/// - --ptr         -> Pointer<char> &
+/// - ptr + offset  -> Pointer<char>，其中offset可以是任意整数类型
+/// - ptr - offset  -> Pointer<char>，其中offset可以是任意整数类型
+/// - ptr += offset -> Pointer<char> &，其中offset可以是任意整数类型
+/// - ptr -= offset -> Pointer<char> &，其中offset可以是任意整数类型
+/// 比较运算：
+/// - ptr == ptr2 -> bool，其中ptr2是Pointer<char>，Pointer<void>类型或者nullptr
+/// - ptr > ptr2 -> bool
+/// - ptr < ptr2 -> bool
+/// 以及其他指针支持的比较运算符。
+///
+/// WARN:
+/// 如果T存储时需要跨页访问，可能会出现错误，因此尽可能使用char或uint8_t类型的Pointer。
 template <typename T>
 class Pointer final {
 public:
@@ -62,31 +98,88 @@ public:
         pointer = other.pointer;
     }
 
-    /// 如果pointer地址非法，则抛出memory::PointerException异常。
-    /// 抛出异常主要是用于通知进程调度发生了非法内存访问，终止当前进程。
-    T &operator&();
+    /// ptr[i]
+    T &operator[](ptrdiff_t i) {
+        // TODO: Implement this.
+        // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
+    }
 
-    /// 如果pointer地址非法，则抛出memory::PointerException异常。
-    /// 抛出异常主要是用于通知进程调度发生了非法内存访问，终止当前进程。
-    const T &operator&() const;
+    const T &operator[](ptrdiff_t i) const {
+        // TODO: Implement this.
+        // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
+        // 实现完毕后直接复制上面的代码即可。
+    }
 
-    /// 如果pointer地址非法，则抛出memory::PointerException异常。
-    /// 抛出异常主要是用于通知进程调度发生了非法内存访问，终止当前进程。
-    T &operator->();
+    /// *ptr
+    T &operator*() { return operator[](0); }
 
-    /// 如果pointer地址非法，则抛出memory::PointerException异常。
-    /// 抛出异常主要是用于通知进程调度发生了非法内存访问，终止当前进程。
-    const T &operator->() const;
+    /// *ptr
+    const T &operator*() const { return operator[](0); }
+
+    /// ptr->
+    T &operator->() { return this->operator*(); }
+
+    /// ptr->
+    const T &operator->() const { return this->operator*(); }
 
     /// 注意：获取空指针不要直接使用算数操作获取地址，这是不安全的操作。
     T *Get() noexcept { return pointer; }
     /// 注意：获取空指针不要直接使用算数操作获取地址，这是不安全的操作。
     const T *Get() const noexcept { return pointer; }
 
+    // ptr += offset
+    Pointer &operator+=(ptrdiff_t offset) {
+        // TODO: Implement this.
+        // 注意，处理偏移时需要考虑跨页的情况和offset为负数的情况。
+    }
+
+    // ptr -= offset
+    Pointer &operator-=(ptrdiff_t offset) { return operator+=(-offset); }
+
+    // ++ptr
+    Pointer &operator++() {
+        operator+=(1);
+        return (*this);
+    }
+
+    // ptr++
+    Pointer operator++(int) {
+        auto ret = *this;
+        ++(*this);
+        return ret;
+    }
+
+    // --ptr
+    Pointer &operator--() {
+        operator-=(1);
+        return (*this);
+    }
+
+    // ptr--
+    Pointer operator--(int) {
+        auto ret = *this;
+        --(*this);
+        return ret;
+    }
+
 private:
     T *pointer = nullptr;
 };
 
+template <typename T>
+Pointer<T> operator+(Pointer<T> lhs, ptrdiff_t rhs) {
+    lhs += rhs;
+    return lhs;
+}
+
+template <typename T>
+Pointer<T> operator-(Pointer<T> lhs, ptrdiff_t rhs) {
+    lhs -= rhs;
+    return lhs;
+}
+
+/// void *类型的指针，可以与其他任意类型的指针转换。
+/// 不能进行算数运算，不能获取内容。
 template <>
 class Pointer<void> final {
 public:
@@ -124,9 +217,44 @@ bool operator!=(Pointer<T> lhs, Pointer<T> rhs) noexcept {
     return lhs.Get() != rhs.Get();
 }
 
+template <typename T>
+bool operator<(Pointer<T> lhs, Pointer<T> rhs) noexcept {
+    return lhs.Get() < rhs.Get();
+}
+
+template <typename T>
+bool operator>(Pointer<T> lhs, Pointer<T> rhs) noexcept {
+    return lhs.Get() > rhs.Get();
+}
+
+template <typename T>
+bool operator<=(Pointer<T> lhs, Pointer<T> rhs) noexcept {
+    return lhs.Get() <= rhs.Get();
+}
+
+template <typename T>
+bool operator>=(Pointer<T> lhs, Pointer<T> rhs) noexcept {
+    return lhs.Get() >= rhs.Get();
+}
+
+/// 内存池，实际上的内存管理类。
+///
+/// 内存管理方法：
+///     调用者调用Allocate(size)方法申请内存，申请内存时会先判断有没有足够的内存用来分配。
+/// 如果没有足够的内存分配，则返回nullptr。如果有足够的内存，则从空闲列表中划出足够的内存，
+/// 然后从空闲组号中取一个组号，将这些内存标记为一组，表示一次分配。同时，标记这些内存块对应的
+/// 组号。
+///     释放内存时，首先根据传入的指针，计算相对于内存池的偏移量，判断这个指针属于哪个内存块。
+/// 然后根据内存块找到所属的组，将整个组的内存一起标记为释放。释放时，先将内存中所有的页归还到
+/// freeList中，然后归还组号。
+///
+/// MemoryPool类是Singleton类，全局只有一个MemoryPool即可。
+/// 使用MemoryPool时，调用MemoryPool::GetInstance()方法来获取实例。
 class MemoryPool final {
 public:
-    using PageId      = size_t;
+    // 页号
+    using PageId = size_t;
+    // 组号
     using PageGroupId = size_t;
 
     static constexpr const PageId INVALID_PAGE_ID       = -1;
@@ -143,6 +271,8 @@ public:
 
     static MemoryPool &GetInstance() noexcept;
 
+    // 考虑到Pointer可能需要MemoryPool中组号相关的信息来计算偏移量，
+    // 故允许Pointer类为友元类。
     template <typename T>
     friend class Pointer;
 
@@ -152,23 +282,31 @@ private:
 
     /// 如果没有空闲的group id，返回INVALID_PAGE_GROUP_ID。
     PageGroupId GetFreeGroupId() noexcept;
-    void        ReleaseGroupId(PageGroupId id) noexcept;
 
-    /// 如果剩余的空闲页不足，则返回一个空列表。
+    /// 释放该group id。
+    void ReleaseGroupId(PageGroupId id) noexcept;
+
+    /// 获取num个空闲页。如果剩余的空闲页不足，则返回一个空列表。
     std::vector<PageId> GetFreePages(size_t num) noexcept;
+
+    /// 释放pageList中所有的页。
     void ReleasePages(const std::vector<PageId> &pageList) noexcept;
 
     /// 用于计算需要分配申请多少页的内存。
     static size_t RoundUpPageNum(size_t memorySize) noexcept;
 
 private:
-    ConstQueue<PageId, MEMORY_PAGE_NUM>     freeList;
+    // 当前空闲的页的编号。
+    ConstQueue<PageId, MEMORY_PAGE_NUM> freeList;
+    // 所有的内存页。
     std::array<MemoryPage, MEMORY_PAGE_NUM> pages;
 
-    // 保证GroupId <= MEMORY_PAGE_NUM恒成立。
-    ConstQueue<PageGroupId, MEMORY_PAGE_NUM>         freeGroupIdList;
+    // 空闲的组的编号。保证GroupId <= MEMORY_PAGE_NUM恒成立。
+    ConstQueue<PageGroupId, MEMORY_PAGE_NUM> freeGroupIdList;
+    // 用于存储每个组都有哪些页。
     std::array<std::vector<PageId>, MEMORY_PAGE_NUM> pageGroups;
-    std::array<PageGroupId, MEMORY_PAGE_NUM>         pageGroupId;
+    // 用于标记每个页属于哪个组。
+    std::array<PageGroupId, MEMORY_PAGE_NUM> pageGroupId;
 };
 
 } // namespace memory

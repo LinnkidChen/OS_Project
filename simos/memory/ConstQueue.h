@@ -8,6 +8,8 @@
 
 namespace memory {
 
+/// 大小固定的queue，用法和std::queue差不多，只不过多了一个full()方法用来判断
+/// 队列是否已满。
 template <typename T, size_t SIZE>
 class ConstQueue {
 public:

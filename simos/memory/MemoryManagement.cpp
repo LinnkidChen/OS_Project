@@ -14,6 +14,7 @@ auto MemoryPool::GetBelongingPageId(Pointer<void> ptr) noexcept -> PageId {
     auto byte_ptr   = static_cast<uint8_t *>(ptr.Get());
     auto page_start = reinterpret_cast<uint8_t *>(std::addressof(pages[0]));
 
+    // 根据偏移量计算所属的页编号
     size_t diff = byte_ptr - page_start;
     PageId id   = diff / MEMORY_PAGE_SIZE;
 
