@@ -99,16 +99,9 @@ public:
     }
 
     /// ptr[i]
-    T &operator[](ptrdiff_t i) {
-        // TODO: Implement this.
-        // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
-    }
+    T &operator[](ptrdiff_t i);
 
-    const T &operator[](ptrdiff_t i) const {
-        // TODO: Implement this.
-        // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
-        // 实现完毕后直接复制上面的代码即可。
-    }
+    const T &operator[](ptrdiff_t i) const;
 
     /// *ptr
     T &operator*() { return operator[](0); }
@@ -128,10 +121,7 @@ public:
     const T *Get() const noexcept { return pointer; }
 
     // ptr += offset
-    Pointer &operator+=(ptrdiff_t offset) {
-        // TODO: Implement this.
-        // 注意，处理偏移时需要考虑跨页的情况和offset为负数的情况。
-    }
+    Pointer &operator+=(ptrdiff_t offset);
 
     // ptr -= offset
     Pointer &operator-=(ptrdiff_t offset) { return operator+=(-offset); }
@@ -308,5 +298,24 @@ private:
     // 用于标记每个页属于哪个组。
     std::array<PageGroupId, MEMORY_PAGE_NUM> pageGroupId;
 };
+
+template <typename T>
+T &Pointer<T>::operator[](ptrdiff_t i) {
+    // TODO: Implement this.
+    // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
+}
+
+template <typename T>
+const T &Pointer<T>::operator[](ptrdiff_t i) const {
+    // TODO: Implement this.
+    // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
+    // 实现完毕后直接复制上面的代码即可。
+}
+
+template <typename T>
+auto Pointer<T>::operator+=(ptrdiff_t offset) -> Pointer & {
+    // TODO: Implement this.
+    // 注意，处理偏移时需要考虑跨页的情况和offset为负数的情况。
+}
 
 } // namespace memory
