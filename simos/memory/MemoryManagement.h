@@ -25,9 +25,11 @@ namespace memory {
 /// 可平凡拷贝，可平凡析构，可以安全地直接获取并访问该类的地址。
     class MemoryPage final {
     public:
-        MemoryPage() noexcept                   = default;
+        MemoryPage() noexcept = default;
+
         MemoryPage(const MemoryPage &) noexcept = default;
-        ~MemoryPage()                           = default;
+
+        ~MemoryPage() = default;
 
         /// 获取这个页第pos个字节。pos应当总是小于页面大小。
         void *Get(size_t pos) noexcept {
@@ -49,9 +51,12 @@ namespace memory {
 /// NOTE: 直接访问进程管理杀死当前进程而非抛出异常。
     class PointerException final : public std::exception {
     public:
-        PointerException() noexcept                         = default;
+        PointerException() noexcept = default;
+
         PointerException(const PointerException &) noexcept = default;
+
         ~PointerException() noexcept override = default;
+
         const char *what() const noexcept override { return "segmentation fault."; }
     };
 
@@ -82,16 +87,18 @@ namespace memory {
 ///
 /// WARN:
 /// 如果T存储时需要跨页访问，可能会出现错误，因此尽可能使用char或uint8_t类型的Pointer。
-    template <typename T>
+    template<typename T>
     class Pointer final {
     public:
-        Pointer() noexcept                = default;
+        Pointer() noexcept = default;
+
         Pointer(const Pointer &) noexcept = default;
+
         Pointer &operator=(const Pointer &) noexcept = default;
 
-        Pointer(std::nullptr_t) noexcept : Pointer() {}
+        Pointer(std::nullptr_t) noexcept: Pointer() {}
 
-        template <typename U>
+        template<typename U>
         explicit Pointer(const Pointer<U> &other) noexcept {
             pointer = other.pointer;
         }
@@ -115,6 +122,7 @@ namespace memory {
 
         /// 注意：获取空指针不要直接使用算数操作获取地址，这是不安全的操作。
         T *Get() noexcept { return pointer; }
+
         /// 注意：获取空指针不要直接使用算数操作获取地址，这是不安全的操作。
         const T *Get() const noexcept { return pointer; }
 
@@ -154,13 +162,13 @@ namespace memory {
         T *pointer = nullptr;
     };
 
-    template <typename T>
+    template<typename T>
     Pointer<T> operator+(Pointer<T> lhs, ptrdiff_t rhs) {
         lhs += rhs;
         return lhs;
     }
 
-    template <typename T>
+    template<typename T>
     Pointer<T> operator-(Pointer<T> lhs, ptrdiff_t rhs) {
         lhs -= rhs;
         return lhs;
@@ -168,59 +176,62 @@ namespace memory {
 
 /// void *类型的指针，可以与其他任意类型的指针转换。
 /// 不能进行算数运算，不能获取内容。
-    template <>
+    template<>
     class Pointer<void> final {
     public:
-        Pointer() noexcept                = default;
+        Pointer() noexcept = default;
+
         Pointer(const Pointer &) noexcept = default;
+
         Pointer &operator=(const Pointer &) noexcept = default;
 
         Pointer(std::nullptr_t) noexcept {}
 
-        template <typename U>
+        template<typename U>
         Pointer(const Pointer<U> &other) noexcept {
             pointer = other.pointer;
         }
 
         /// 注意：获取空指针不要直接使用算数操作获取地址，这是不安全的操作。
         void *Get() noexcept { return pointer; }
+
         /// 注意：获取空指针不要直接使用算数操作获取地址，这是不安全的操作。
         const void *Get() const noexcept { return pointer; }
 
         friend class MemoryPool;
 
     private:
-        Pointer(void *ptr) noexcept : pointer(ptr) {}
+        Pointer(void *ptr) noexcept: pointer(ptr) {}
 
         void *pointer = nullptr;
     };
 
-    template <typename T>
+    template<typename T>
     bool operator==(Pointer<T> lhs, Pointer<T> rhs) noexcept {
         return lhs.Get() == rhs.Get();
     }
 
-    template <typename T>
+    template<typename T>
     bool operator!=(Pointer<T> lhs, Pointer<T> rhs) noexcept {
         return lhs.Get() != rhs.Get();
     }
 
-    template <typename T>
+    template<typename T>
     bool operator<(Pointer<T> lhs, Pointer<T> rhs) noexcept {
         return lhs.Get() < rhs.Get();
     }
 
-    template <typename T>
+    template<typename T>
     bool operator>(Pointer<T> lhs, Pointer<T> rhs) noexcept {
         return lhs.Get() > rhs.Get();
     }
 
-    template <typename T>
+    template<typename T>
     bool operator<=(Pointer<T> lhs, Pointer<T> rhs) noexcept {
         return lhs.Get() <= rhs.Get();
     }
 
-    template <typename T>
+    template<typename T>
     bool operator>=(Pointer<T> lhs, Pointer<T> rhs) noexcept {
         return lhs.Get() >= rhs.Get();
     }
@@ -245,7 +256,7 @@ namespace memory {
         // 组号
         using PageGroupId = size_t;
 
-        static constexpr const PageId INVALID_PAGE_ID       = -1;
+        static constexpr const PageId INVALID_PAGE_ID = -1;
         static constexpr const PageId INVALID_PAGE_GROUP_ID = -1;
 
         MemoryPool();
@@ -261,8 +272,9 @@ namespace memory {
 
         // 考虑到Pointer可能需要MemoryPool中组号相关的信息来计算偏移量，
         // 故允许Pointer类为友元类。
-        template <typename T>
-        friend class Pointer;
+        template<typename T>
+        friend
+        class Pointer;
 
 
     private:
@@ -298,96 +310,86 @@ namespace memory {
         std::array<PageGroupId, MEMORY_PAGE_NUM> pageGroupId;
     };
 
-    template <typename T>
+    template<typename T>
     T &Pointer<T>::operator[](ptrdiff_t i) {
         // TODO: Implement this.
         PointerException pointer_Exception;
-        if(i < 0 || i > MEMORY_POOL_SIZE){
+        if (i < 0 || i > MEMORY_POOL_SIZE) {
             return pointer_Exception.what();
-        }
-        else {
+        } else {
             MemoryPool pool = MemoryPool::GetInstance();
             auto ptr = std::addressof(pointer);//该指针地址
             auto pageNum = pool.GetBelongingPageId(pointer);//该指针对应的页号
             auto pageStart = std::addressof(pool.pages[pageNum]);//该页的开始地址
-            if(ptr + i <= pageStart + MEMORY_PAGE_SIZE)//不跨页
+            if (ptr + i <= pageStart + MEMORY_PAGE_SIZE)//不跨页
             {
-                return pointer+i;
-            }
-            else
-            {
-                auto nextPageNum = pageNum + (i+ptr-pageStart)/MEMORY_PAGE_SIZE;//偏移后的页号
+                return pointer + i;
+            } else {
+                auto nextPageNum = pageNum + (i + ptr - pageStart) / MEMORY_PAGE_SIZE;//偏移后的页号
                 assert(nextPageNum >= 0 && nextPageNum < MEMORY_PAGE_NUM);
                 auto nextPageStart = std::addressof(pool.pages[nextPageNum]);//偏移后的页号的开始地址
-                return nextPageStart + (i+ptr-pageStart)%MEMORY_PAGE_SIZE;
-            }
-
-        // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
-    }
-
-    template <typename T>
-    const T &Pointer<T>::operator[](ptrdiff_t i) const {
-        // TODO: Implement this.
-        PointerException pointer_Exception;
-        if(i < 0 || i > MEMORY_POOL_SIZE){
-            return pointer_Exception.what();
-        }
-        else {
-            MemoryPool pool = MemoryPool::GetInstance();
-            auto ptr = std::addressof(pointer);//该指针地址
-            auto pageNum = pool.GetBelongingPageId(pointer);//该指针对应的页号
-            auto pageStart = std::addressof(pool.pages[pageNum]);//该页的开始地址
-            if(ptr + i <= pageStart + MEMORY_PAGE_SIZE)//不跨页
-            {
-                return pointer+i;
-            }
-            else
-            {
-                auto nextPageNum = pageNum + (i+ptr-pageStart)/MEMORY_PAGE_SIZE;//偏移后的页号
-                assert(nextPageNum >= 0 && nextPageNum < MEMORY_PAGE_NUM);
-                auto nextPageStart = std::addressof(pool.pages[nextPageNum]);//偏移后的页号的开始地址
-                return nextPageStart + (i+ptr-pageStart)%MEMORY_PAGE_SIZE;
+                return nextPageStart + (i + ptr - pageStart) % MEMORY_PAGE_SIZE;
             }
         }
         // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
         // 实现完毕后直接复制上面的代码即可。
     }
 
-    template <typename T>
-    auto Pointer<T>::operator+=(ptrdiff_t offset) -> Pointer & {
-        // TODO: Implement this.
-        // 注意，处理偏移时需要考虑跨页的情况和offset为负数的情况。
-        MemoryPool pool = MemoryPool::GetInstance();
-        auto ptr = std::addressof(pointer);//该指针地址
-        auto pageNum = pool.GetBelongingPageId(pointer);//该指针对应的页号
-        auto pageStart = std::addressof(pool.pages[pageNum]);//该页的开始地址
-        if(offset >= 0){
-            if(ptr + offset <= pageStart + MEMORY_PAGE_SIZE)//不跨页
-            {
-                pointer += offset;
+
+    template<typename T>
+        const T &Pointer<T>::operator[](ptrdiff_t i) const {
+            // TODO: Implement this.
+            PointerException pointer_Exception;
+            if (i < 0 || i > MEMORY_POOL_SIZE) {
+                return pointer_Exception.what();
+            } else {
+                MemoryPool pool = MemoryPool::GetInstance();
+                auto ptr = std::addressof(pointer);//该指针地址
+                auto pageNum = pool.GetBelongingPageId(pointer);//该指针对应的页号
+                auto pageStart = std::addressof(pool.pages[pageNum]);//该页的开始地址
+                if (ptr + i <= pageStart + MEMORY_PAGE_SIZE)//不跨页
+                {
+                    return pointer + i;
+                } else {
+                    auto nextPageNum = pageNum + (i + ptr - pageStart) / MEMORY_PAGE_SIZE;//偏移后的页号
+                    assert(nextPageNum >= 0 && nextPageNum < MEMORY_PAGE_NUM);
+                    auto nextPageStart = std::addressof(pool.pages[nextPageNum]);//偏移后的页号的开始地址
+                    return nextPageStart + (i + ptr - pageStart) % MEMORY_PAGE_SIZE;
+                }
             }
-            else
-            {
-                auto nextPageNum = pageNum + (offset+ptr-pageStart)/MEMORY_PAGE_SIZE;//偏移后的页号
-                assert(nextPageNum >= 0 && nextPageNum < MEMORY_PAGE_NUM);
-                auto nextPageStart = std::addressof(pool.pages[nextPageNum]);//偏移后的页号的开始地址
-                pointer = nextPageStart + (offset+ptr-pageStart)%MEMORY_PAGE_SIZE;
-            }
-        }
-        else{
-            if(ptr + offset <= pageStart)//不跨页
-            {
-                pointer += offset;
-            }
-            else
-            {
-                auto nextPageNum = pageNum - (-offset+ptr-pageStart)/MEMORY_PAGE_SIZE;
-                assert(nextPageNum >= 0 && nextPageNum < MEMORY_PAGE_NUM);
-                auto nextPageStart = std::addressof(pool.pages[nextPageNum]);
-                pointer = nextPageStart + (-offset+ptr-pageStart)%MEMORY_PAGE_SIZE + MEMORY_PAGE_SIZE;
-            }
+            // 注意需要考虑地址非法的情况、地址为负数的情况和跨页的情况。
+            // 实现完毕后直接复制上面的代码即可。
         }
 
-    }
-
-} // namespace memory
+        template<typename T>
+        auto Pointer<T>::operator+=(ptrdiff_t offset) -> Pointer & {
+            // TODO: Implement this.
+            // 注意，处理偏移时需要考虑跨页的情况和offset为负数的情况。
+            MemoryPool pool = MemoryPool::GetInstance();
+            auto ptr = std::addressof(pointer);//该指针地址
+            auto pageNum = pool.GetBelongingPageId(pointer);//该指针对应的页号
+            auto pageStart = std::addressof(pool.pages[pageNum]);//该页的开始地址
+            if (offset >= 0) {
+                if (ptr + offset <= pageStart + MEMORY_PAGE_SIZE)//不跨页
+                {
+                    pointer += offset;
+                } else {
+                    auto nextPageNum = pageNum + (offset + ptr - pageStart) / MEMORY_PAGE_SIZE;//偏移后的页号
+                    assert(nextPageNum >= 0 && nextPageNum < MEMORY_PAGE_NUM);
+                    auto nextPageStart = std::addressof(pool.pages[nextPageNum]);//偏移后的页号的开始地址
+                    pointer = nextPageStart + (offset + ptr - pageStart) % MEMORY_PAGE_SIZE;
+                }
+            } else {
+                if (ptr + offset <= pageStart)//不跨页
+                {
+                    pointer += offset;
+                } else {
+                    auto nextPageNum = pageNum - (-offset + ptr - pageStart) / MEMORY_PAGE_SIZE;
+                    assert(nextPageNum >= 0 && nextPageNum < MEMORY_PAGE_NUM);
+                    auto nextPageStart = std::addressof(pool.pages[nextPageNum]);
+                    pointer = nextPageStart + (-offset + ptr - pageStart) % MEMORY_PAGE_SIZE + MEMORY_PAGE_SIZE;
+                }
+            }
+                return pointer;
+        }
+    } // namespace memory
