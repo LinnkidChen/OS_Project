@@ -1,38 +1,35 @@
 #pragma once
 #include <iostream>
 #include <regex>
+#include<queue>
 #include <string>
-#include<vector>
-class Intepreter {//输入指令并执行 
-    PCB * const cur_PCB;
-    queue<memory_block> memry_que;
-    std::vector <std::regex> instru_reg_list;//指令正则化的表达集合
-public:
-    void run(std::string instruction);//instruction使用请参照文档
-// TODO ⬇️小组讨论实现
-    void save(); //将memoryqueue以及相关的数据结构保存进内存中
-    void read(); //将相关的数据结构从内存中读取出来
-
-
-};
-
-
-
+#include <vector>
+#include "../memory/MemoryManagement.h"
+class PCB;
 class memory_block {
 
-    memory_pointer ptr;
+    memory::Pointer<char> ptr;
     int            size;
 
 public:
-    memory_block(int size_, memory_pointer ptr_) : prt(ptr_), size(size_){};
+    memory_block(int size_, const memory::Pointer<char>ptr_) :size(size_){ptr=ptr_;};
     int get_size() { return size; }
-    memory_pointer get_ptr(){return ptr;}
+    memory::Pointer<char>get_ptr(){return ptr;}
 };
-class enter {
+class Intepreter {//输入指令并执行 
 public:
-	std::string mode = "^enter ";
-	
+    PCB const * cur_PCB;
+    void run(std::string instruction);//instruction使用请参照文档
+
+    // static std::queue<memory_block> memry_que;//TODO 写进PCB
+    //不是很确定const*memryque的形式有没有写对
+
 };
+
+
+// Intepreter A;
+// A.cur_pcb = pcb;
+// A.run(instruction);
 
 /*
 	时钟周期
@@ -65,6 +62,8 @@ class clock {
 */
 class commandC {
 public:
+        PCB             const * pcb;
+    commandC(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
   static std::regex searchMode;
 
@@ -88,63 +87,39 @@ public:
 };
 class commandK {
 public:
+    PCB             const * pcb;
+    commandK(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
   static std::regex searchMode;
 
   static void init() {
-    mode = std::regex("^K\\s[0-9]*\\s[0-9]*\\s*$");
+    mode = std::regex(R"(^K\s[0-9]*\s[0-9]*\s*$)");
     searchMode = std::regex("[0-9]*");
     ;
   }
   static bool match(std::string str) { return std::regex_match(str, mode); }
-  static int work(std::string str) {
-    int time; //使用的周期
-    int size; //文件大小
-    std::smatch matched;
-
-    std::regex_search(str, matched, searchMode);
-    time = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
-
-    for (; time > 0; time--) {
-      clock::increase();
-    }
-    /*
-            设备管理.键盘写入内存(内核.获得缓冲区地址(), size);
-            进程管理.阻塞该进程(中断条件_键盘写入完成);
-    */
-    return 0;
-  }
+  static int work(std::string str) ;
 };
 class commandP {
 public:
+    PCB             const * pcb;
+    commandP(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
   static std::regex searchMode;
 
   static void init() {
-    mode = std::regex("^P\\s[0-9]*\\s[0-9]*\\s*$");
+    mode = std::regex(R"(^P\s[0-9]*\s[0-9]*\s*$)");
     searchMode = std::regex("[0-9]*");
     ;
   }
   static bool match(std::string str) { return std::regex_match(str, mode); }
-  static int work(std::string str) {
-    int size;   //文件大小
-    int offset; //偏移量
-    std::smatch matched;
-
-    std::regex_search(str, matched, searchMode);
-    offset = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
-
-    clock::increase();
-    /*
-            设备管理.打印内容(进程管理.获得进程起始地址() + offset, size);
-            进程管理.阻塞该进程(中断条件_打印完成);
-    */
-  }
+  static int work(std::string str) ;
 };
 class commandR {
 public:
+    PCB
+        const * pcb;
+    commandR(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
   static std::regex searchModeFileDir;
   static std::regex searchModeNumber;
@@ -155,29 +130,13 @@ public:
     searchModeNumber = std::regex("-?[0-9]*");
   }
   static bool match(std::string str) { return std::regex_match(str, mode); }
-  static int work(std::string str) {
-    int size;            //文件大小
-    int offset;          //偏移量
-    std::string fileDir; //文件目录
-    std::smatch matched;
-
-    std::regex_search(str, matched, searchModeFileDir);
-    fileDir = matched.str(0);
-    fileDir = fileDir.substr(1, fileDir.length() - 2);
-
-    std::regex_search(str, matched, searchModeNumber);
-    offset = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
-
-    clock::increase();
-    /*
-            设备管理.文件写入内存(内核.获得系统缓冲区地址(), fileDir, offset,
-       size); 进程管理.阻塞该进程(中断条件_文件读入完成);
-    */
-  }
+ int work(std::string str) ;
+  
 };
 class commandW {
 public:
+        PCB             const * pcb;
+    commandW(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
   static std::regex searchModeFileDir;
   static std::regex searchModeNumber;
@@ -188,63 +147,35 @@ public:
     searchModeNumber = std::regex("-?[0-9]*");
   }
   static bool match(std::string str) { return std::regex_match(str, mode); }
-  static int work(std::string str) {
-    int size;            //文件大小
-    int offset;          //偏移量
-    std::string fileDir; //文件目录
-    std::smatch matched;
-
-    std::regex_search(str, matched, searchModeFileDir);
-    fileDir = matched.str(0);
-    fileDir = fileDir.substr(1, fileDir.length() - 2);
-
-    std::regex_search(str, matched, searchModeNumber);
-    offset = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
-
-    clock::increase();
-    /*
-            设备管理.内存写入文件(内核.获得系统缓冲区地址(), fileDir, offset,
-       size); 进程管理.阻塞该进程(中断条件_文件写入完成);
-    */
-  }
+  static int work(std::string str) ;
 };
 class commandM {
 public:
+        PCB             const * pcb;
+    commandM(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
 
   static void init() { mode = std::regex("^M\\s*$"); }
   static bool match(std::string str) { return std::regex_match(str, mode); }
-  static int work() {
-    clock::increase();
-    /*
-            return 进程管理.查询该进程占用内存();
-    */
-  }
+  static int work();
 };
 class commandY {
 public:
+    PCB             const * pcb;
+    commandY(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
 
   static void init() { mode = std::regex("^Y\\s*$"); }
   static bool match(std::string str) { return std::regex_match(str, mode); }
-  static int work() {
-    clock::increase();
-    /*
-            return 进程管理.查询该进程优先级();
-    */
-  }
+  static int work() ;
 };
 class commandQ {
 public:
+    PCB             const * pcb;
+    commandQ(PCB const * pcb_):pcb(pcb_){}
   static std::regex mode;
 
   static void init() { mode = std::regex("^Q\\s*$"); }
   static bool match(std::string str) { return std::regex_match(str, mode); }
-  static int work() {
-    clock::increase();
-    /*
-            进程管理.销毁该进程();
-    */
-  }
+  static int work() ;
 };
