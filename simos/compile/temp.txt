@@ -1,0 +1,7 @@
+//Command q
+    auto q_cmd_ptr = new commandK;
+    q_cmd_ptr->init();
+    if ( q_cmd_ptr->match(instr))
+        q_cmd_ptr->work(instr);
+    else
+        delete q_cmd_ptr;
