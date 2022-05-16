@@ -14,7 +14,10 @@ SOURCES += \
      simos/ProcessSimulateWindow.cpp \
      simos/main.cpp \
      simos/MainWindow.cpp \
-     simos/memory/MemoryManagement.cpp
+     simos/memory/MemoryManagement.cpp \
+     simos/process/Cpu.cpp \
+     simos/process/Process.cpp \
+     simos/process/ProcessWindow.cpp
 
 HEADERS += \
      simos/FileSystemSimulateWindow.h \
@@ -22,9 +25,13 @@ HEADERS += \
      simos/MemorySimulateWindow.h \
      simos/ProcessSimulateWindow.h \
      simos/memory/ConstQueue.h \
-     simos/memory/MemoryManagement.h
+     simos/memory/MemoryManagement.h \
+     simos/process/Cpu.h \
+     simos/process/Process.h \
+     simos/process/ProcessWindow.h
 
 FORMS += \
+     simos/process/ProcessWindow.ui \
      ui/FileSystemSimulateWindow.ui \
      ui/MainWindow.ui \
      ui/MemorySimulateWindow.ui \
