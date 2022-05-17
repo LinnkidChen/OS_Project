@@ -93,9 +93,11 @@ int commandK::work(std::string str) {
 
     pcb->memry_queue.emplace(size,ptr);
     /*
-            
-            设备管理.键盘写入内存(内核.获得缓冲区地址(), size);
-            进程管理.阻塞该进程(中断条件_键盘写入完成);
+
+         直接注册中断
+            void add_itrpt(int process_num = -1, ITRTYPE itr_type = none,
+                   int deviceInfo = 0,memory::Pointer<char> ptr=nullptr);
+不用写入地址
     */
     for (; time > 0; time--) {
       clock::increase();
@@ -118,7 +120,10 @@ int commandK::work(std::string str) {
     clock::increase();
     /*
             设备管理.打印内容(进程管理.获得进程起始地址() + offset, size);
-            进程管理.阻塞该进程(中断条件_打印完成);
+    void add_itrpt(int process_num = -1, ITRTYPE itr_type = none,
+                   int deviceInfo = 0,memory::Pointer<char> ptr=nullptr);
+要求一定传入地址ß
+          ⬆️直接注册中断 由中断调用设备
     */
  }
 
