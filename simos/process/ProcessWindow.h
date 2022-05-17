@@ -15,6 +15,7 @@ public:
 
 private:
     void UpdateContents();
+    void StartProgram();
 
 private:
     Ui::ProcessWindow *ui;

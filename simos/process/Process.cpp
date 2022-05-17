@@ -85,6 +85,21 @@ void ProcessScheduler::KillProcess(int64_t pid) noexcept {
         m_last_process = nullptr;
     if (m_current_process == std::addressof(it->second))
         m_current_process = nullptr;
+
+    auto ptr = std::addressof(it->second);
+    m_blocked.erase(ptr);
+
+    // remove deleted process from schedule queue
+    for (auto &q : m_queues) {
+        auto it = q.begin();
+        for (it = q.begin(); it != q.end(); ++it) {
+            if (*it == ptr)
+                break;
+        }
+        if (it != q.end())
+            q.erase(it);
+    }
+
     m_processes.erase(it);
 }
 
@@ -104,6 +119,7 @@ ProcessScheduler::StartProcess(std::string              name,
     proc.m_next_instruction     = 0;
     proc.m_pcb.m_pid            = AllocatePID();
     proc.m_pcb.m_start_time     = Cpu::GetInstance().GetCurrentTime();
+    proc.m_pcb.m_state          = ProcessState::Waiting;
     proc.m_pcb.m_time_left      = NUM_INST_PER_LEVEL;
     proc.m_pcb.m_name           = std::move(name);
 

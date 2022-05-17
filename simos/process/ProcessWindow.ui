@@ -15,7 +15,6 @@
   </property>
   <property name="font">
    <font>
-    <family>PingFang SC</family>
     <pointsize>18</pointsize>
    </font>
   </property>
@@ -29,7 +28,6 @@
       <widget class="QLabel" name="label_title">
        <property name="font">
         <font>
-         <family>PingFang SC</family>
          <pointsize>24</pointsize>
         </font>
        </property>
@@ -53,7 +51,6 @@
           <widget class="QTextEdit" name="process_table">
            <property name="font">
             <font>
-             <family>Fira Code</family>
              <pointsize>12</pointsize>
             </font>
            </property>
@@ -65,7 +62,6 @@
         <widget class="QLabel" name="label_scheduler_status">
          <property name="font">
           <font>
-           <family>PingFang SC</family>
            <pointsize>18</pointsize>
           </font>
          </property>
@@ -78,7 +74,6 @@
         <widget class="QLabel" name="lable_current_process">
          <property name="font">
           <font>
-           <family>PingFang SC</family>
            <pointsize>18</pointsize>
           </font>
          </property>
@@ -104,7 +99,6 @@
               <widget class="QTextEdit" name="pcb_info">
                <property name="font">
                 <font>
-                 <family>Fira Code</family>
                  <pointsize>12</pointsize>
                 </font>
                </property>
@@ -113,15 +107,14 @@
              <item>
               <widget class="QLabel" name="label">
                <property name="text">
-                <string>当前指令</string>
+                <string>程序代码</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QTextEdit" name="current_inst">
+              <widget class="QTextEdit" name="program_input">
                <property name="font">
                 <font>
-                 <family>Fira Code</family>
                  <pointsize>12</pointsize>
                 </font>
                </property>
@@ -142,7 +135,6 @@
               <widget class="QTextEdit" name="inst_table">
                <property name="font">
                 <font>
-                 <family>Fira Code</family>
                  <pointsize>12</pointsize>
                 </font>
                </property>
@@ -160,6 +152,13 @@
    </item>
    <item row="1" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QPushButton" name="program_start_btn">
+       <property name="text">
+        <string>启动程序</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">

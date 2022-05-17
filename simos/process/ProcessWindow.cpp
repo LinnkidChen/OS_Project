@@ -18,6 +18,10 @@ ProcessWindow::ProcessWindow(QWidget *parent)
         Cpu::GetInstance().Run(true);
         this->UpdateContents();
     });
+
+    connect(ui->program_start_btn, &QPushButton::clicked, [this]() {
+        this->StartProgram();
+    });
 }
 
 ProcessWindow::~ProcessWindow() { delete ui; }
@@ -40,11 +44,6 @@ void ProcessWindow::UpdateContents() {
                      last_proc->m_pcb.m_time_left);
             ui->pcb_info->setText(QString(buffer));
         }
-    }
-    {
-        ui->current_inst->clear();
-        auto &inst = Cpu::GetInstance().GetLastInstructionName();
-        ui->current_inst->setText(inst.c_str());
     }
     {
         auto last_proc = process_scheduler.GetLastProcess();
@@ -78,4 +77,29 @@ void ProcessWindow::UpdateContents() {
             ui->process_table->append(buf);
         }
     }
+}
+
+void ProcessWindow::StartProgram() {
+    QString        code_list = ui->program_input->toPlainText();
+    QList<QString> instructions =
+        code_list.split(QChar('\n'), Qt::SkipEmptyParts);
+    if (instructions.empty())
+        return;
+
+    std::string              program_name = instructions[0].toStdString();
+    std::vector<Instruction> inst_list;
+    inst_list.reserve(instructions.size());
+
+    // TODO: Use compiler to generate real instructions
+    for (size_t i = 1; i < static_cast<size_t>(instructions.size()); ++i) {
+        Instruction inst;
+        inst.context     = instructions[i].toStdString();
+        inst.instruction = [](Process &) { return false; };
+        inst_list.emplace_back(std::move(inst));
+    }
+
+    ProcessScheduler::GetInstance().StartProcess(std::move(program_name),
+                                                 std::move(inst_list));
+
+    UpdateContents();
 }
