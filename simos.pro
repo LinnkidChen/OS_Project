@@ -12,6 +12,7 @@ SOURCES += \
      simos/FileSystemSimulateWindow.cpp \
      simos/MemorySimulateWindow.cpp \
      simos/ProcessSimulateWindow.cpp \
+     simos/compile/Compiler.cpp \
      simos/main.cpp \
      simos/MainWindow.cpp \
      simos/memory/MemoryManagement.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
      simos/MainWindow.h \
      simos/MemorySimulateWindow.h \
      simos/ProcessSimulateWindow.h \
+     simos/compile/Compiler.h \
      simos/memory/ConstQueue.h \
      simos/memory/MemoryManagement.h \
      simos/process/Cpu.h \

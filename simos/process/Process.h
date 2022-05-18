@@ -1,6 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include "../memory/MemoryManagement.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <deque>
@@ -35,6 +37,16 @@ struct ProcessMeta {
     int64_t      m_time_left;  // time slice left
 };
 
+struct ProcessResource {
+    struct AllocatedMemory {
+        memory::Pointer<char> ptr;
+        size_t                size = 0;
+    };
+
+    std::string                  m_keyboard_input;
+    std::vector<AllocatedMemory> m_memory;
+};
+
 struct Process {
     using InstructionList = std::vector<Instruction>;
 
@@ -43,6 +55,8 @@ struct Process {
     // Program content
     InstructionList m_process_instructions;
     size_t          m_next_instruction;
+
+    ProcessResource m_resource;
 
     bool GetNextInstruction(Instruction &inst) noexcept {
         if (m_next_instruction >= m_process_instructions.size())
@@ -89,9 +103,8 @@ public:
 
     CpuInstruction GetNextInstruction() noexcept;
 
-    void InstructionDone(CpuInstruction &inst,
-                         int64_t         time_spent,
-                         bool            is_blocked) noexcept;
+    void InstructionDone(CpuInstruction &inst, int64_t time_spent,
+                         bool is_blocked) noexcept;
 
     bool HasProcess() const noexcept { return !m_processes.empty(); }
 
@@ -117,6 +130,10 @@ public:
 
     /// Never use the process again once you call this method.
     void KillProcess(int64_t pid) noexcept;
+
+    /// \return
+    ///   -1 if process doesn't exists or process has been blocked.
+    int32_t GetProcessPriority(Process &proc) const noexcept;
 
     static ProcessScheduler &GetInstance() noexcept;
 

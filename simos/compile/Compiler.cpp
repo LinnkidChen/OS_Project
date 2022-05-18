@@ -1,201 +1,503 @@
 #include "Compiler.h"
+#include "../process/Cpu.h"
+
+#include <iostream>
+#include <queue>
 #include <regex>
-//string instr: instruction
-void Intepreter::run(std ::string instr) {
-    bool matched=false;
-    //Command C
-    auto c_cmd_ptr = new commandC(cur_PCB);
-    c_cmd_ptr->init();
-    if (c_cmd_ptr->match(instr))
-    {   c_cmd_ptr->work(instr);
-        delete c_cmd_ptr;
-        c_cmd_ptr = nullptr;
-        matched=true;}
-    else
-        delete c_cmd_ptr;
-    //Command K
-    auto k_cmd_ptr = new commandK(cur_PCB);
-    k_cmd_ptr->init();
-    if (k_cmd_ptr->match(instr)) {
-        k_cmd_ptr->work(instr);
-        matched=true;}
-    else
-        delete k_cmd_ptr;
 
-    //Command P
-    auto p_cmd_ptr = new commandP(cur_PCB);
-    p_cmd_ptr->init();
-    if (p_cmd_ptr->match(instr)) {
-        p_cmd_ptr->work(instr);
-        matched=true;}
-    else
-        delete p_cmd_ptr;
-    
-    //Command R
-    auto r_cmd_ptr = new commandR(cur_PCB);
-    r_cmd_ptr->init();
-    if (r_cmd_ptr->match(instr))
-        {r_cmd_ptr->work(instr);matched=true;}
-    else
-        delete r_cmd_ptr;
-    // Command W
-    
-    auto w_cmd_ptr = new commandW(cur_PCB);
-    w_cmd_ptr->init();
-    if ( w_cmd_ptr->match(instr))
-        {w_cmd_ptr->work(instr);matched=true;}
-    else
-        delete w_cmd_ptr;
-    // Command M
-    
-    auto m_cmd_ptr = new commandM(cur_PCB);
-    m_cmd_ptr->init();
-    if ( m_cmd_ptr->match(instr))
-       {matched=true; m_cmd_ptr->work();}
-    else
-        delete m_cmd_ptr;
-    // Command Y
-    
-    auto y_cmd_ptr = new commandY(cur_PCB);
-    y_cmd_ptr->init();
-    if ( y_cmd_ptr->match(instr))
-       { y_cmd_ptr->work();matched=true;}
-    else
-        delete y_cmd_ptr;
-    // Command Q
-    
-    auto q_cmd_ptr = new commandQ(cur_PCB);
-    q_cmd_ptr->init();
-    if ( q_cmd_ptr->match(instr))
-        {q_cmd_ptr->work();matched=true;}
-    else
-        delete q_cmd_ptr;
+namespace {
 
-    if(!matched);//错误处理
+uint32_t Log2I(int i) noexcept {
+    uint32_t ret = 0;
+    while (i) {
+        i >>= 1;
+        ret++;
+    }
+    return ret;
+}
+
+class commandC {
+public:
+    static const std::regex mode;
+    static const std::regex searchMode;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    static int work(std::string str) {
+        int         clockNeed; //所需周期
+        std::smatch matched;
+
+        std::regex_search(str, matched, searchMode);
+        clockNeed = std::stoi(matched.str(0));
+        for (; clockNeed > 0; clockNeed--) {
+            // clock::increase();
+            //进程管理.减少该进程时间片();
+        }
+        return 0;
+    }
+};
+
+class commandK {
+public:
+    static const std::regex mode;
+    static const std::regex searchMode;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    static int work(std::string str);
+};
+
+class commandP {
+public:
+    static const std::regex mode;
+    static const std::regex searchMode;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    static int work(std::string str);
+};
+
+class commandR {
+public:
+    static const std::regex mode;
+    static const std::regex searchModeFileDir;
+    static const std::regex searchModeNumber;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    int work(std::string str);
+};
+
+class commandW {
+public:
+    static const std::regex mode;
+    static const std::regex searchModeFileDir;
+    static const std::regex searchModeNumber;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    static int work(std::string str);
+};
+
+class commandM {
+public:
+    static const std::regex mode;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    static int work();
+};
+
+class commandY {
+public:
+    static const std::regex mode;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    static int work();
+};
+
+class commandQ {
+public:
+    static const std::regex mode;
+
+    static bool match(const std::string &str) {
+        return std::regex_match(str, mode);
+    }
+
+    static auto interpret(const std::string &src) -> std::vector<Instruction>;
+
+    static int work();
+};
+
+const std::regex commandC::mode{"^C\\s[0-9]*\\s*$"};
+const std::regex commandC::searchMode{"[0-9]*"};
+const std::regex commandK::mode{R"(^K\s[0-9]*\s[0-9]*\s*$)"};
+const std::regex commandK::searchMode{"[0-9]*"};
+const std::regex commandP::mode{R"(^P\s[0-9]*\s[0-9]*\s*$)"};
+const std::regex commandP::searchMode{"[0-9]*"};
+const std::regex commandR::mode{R"(^R\s"[^"]*"\s[0-9]*\s(-1|[0-9]*)\s*$)"};
+const std::regex commandR::searchModeFileDir{R"("[^"]*")"};
+const std::regex commandR::searchModeNumber{"-?[0-9]*"};
+const std::regex commandW::mode{R"(^W\s"[^"]*"\s[0-9]*\s(-1|[0-9]*)\s*$)"};
+const std::regex commandW::searchModeFileDir{R"("[^"]*")"};
+const std::regex commandW::searchModeNumber{"-?[0-9]*"};
+const std::regex commandM::mode{"^M\\s*$"};
+const std::regex commandY::mode{"^Y\\s*$"};
+const std::regex commandQ::mode{"^Q\\s*$"};
+
+/// \brief
+///   Clock指令，模拟使用CPU进行一定时间的计算。
+auto commandC::interpret(const std::string &src) -> std::vector<Instruction> {
+    int         clock_need = 0;
+    std::smatch matched;
+    std::regex_search(src, matched, searchMode);
+    clock_need = std::stoi(matched.str(0));
+    std::vector<Instruction> inst_list;
+
+    for (int i = 0; i < clock_need; ++i) {
+        Instruction inst;
+        inst.context     = src + ' ' + std::to_string(i);
+        inst.instruction = [](Process &) { return false; };
+        inst_list.emplace_back(std::move(inst));
+    }
+    return inst_list;
 }
 
 //使用嵌套类的方法内置指令实行函数
 //嵌套类与外类无相互访问权限 需要通过传参实现
 
-int commandK::work(std::string str) {
-    int time; //使用的周期
-    int size=1024; //文件大小
-    std::smatch matched;
+// int commandK::work(std::string str) {
+//     int         time;        //使用的周期
+//     int         size = 1024; //文件大小
+//     std::smatch matched;
 
-    std::regex_search(str, matched, searchMode);
+//     std::regex_search(str, matched, searchMode);
+//     time = std::stoi(matched.str(0));
+//     size = std::stoi(matched.str(1));
+
+//     memory::Pointer<char>
+//     ptr(memory::MemoryPool::GetInstance().Allocate(size)); if (ptr.Get() ==
+//     nullptr) {
+//         // terminate process
+//     }
+
+//     pcb->memry_queue.emplace(size, ptr);
+//     /*
+
+//             设备管理.键盘写入内存(内核.获得缓冲区地址(), size);
+//             进程管理.阻塞该进程(中断条件_键盘写入完成);
+//     */
+//     for (; time > 0; time--) {
+//         clock::increase();
+//     }
+//     return 0;
+// }
+
+auto commandK::interpret(const std::string &src) -> std::vector<Instruction> {
+    int                  time = 0;
+    [[maybe_unused]] int size = 1024;
+    std::smatch          matched;
+
+    std::regex_search(src, matched, searchMode);
     time = std::stoi(matched.str(0));
     size = std::stoi(matched.str(1));
 
-    memory::Pointer<char> ptr(memory::MemoryPool::GetInstance().Allocate(size));
-    if (ptr.Get() == nullptr) {
-        //terminate process
-    }
+    Instruction inst;
+    inst.context     = src;
+    inst.instruction = [time](Process &proc) -> bool {
+        int64_t pid = proc.m_pcb.m_pid;
+        auto   &cpu = Cpu::GetInstance();
+        cpu.RegisterTimer(static_cast<uint64_t>(time), [pid]() {
+            auto &proc_mgn = ProcessScheduler::GetInstance();
+            auto  proc     = proc_mgn.GetProcessInfo(pid);
+            if (proc != nullptr)
+                proc_mgn.WakeupProcess(proc);
+        });
+        return true; // Block current thread
+    };
 
-    pcb->memry_queue.emplace(size,ptr);
-    /*
-            
-            设备管理.键盘写入内存(内核.获得缓冲区地址(), size);
-            进程管理.阻塞该进程(中断条件_键盘写入完成);
-    */
-    for (; time > 0; time--) {
-      clock::increase();
-    }
-    return 0;
+    return {inst};
 }
 
- int commandP:: work(std::string str) {
-    int size;   //文件大小
-    int offset; //偏移量
+// int commandP::work(std::string str) {
+//     int         size;   //文件大小
+//     int         offset; //偏移量
+//     std::smatch matched;
+
+//     std::regex_search(str, matched, searchMode);
+//     offset               = std::stoi(matched.str(0));
+//     size                 = std::stoi(matched.str(1));
+//     memory_block m_block = pcb->memry_queue.front();
+//     pcb->memry_queue.pop();
+
+//     clock::increase();
+//     /*
+//             设备管理.打印内容(进程管理.获得进程起始地址() + offset, size);
+//             进程管理.阻塞该进程(中断条件_打印完成);
+//     */
+// }
+
+auto commandP::interpret(const std::string &src) -> std::vector<Instruction> {
+    int         size   = 0;
+    int         offset = 0;
     std::smatch matched;
 
-    std::regex_search(str, matched, searchMode);
+    std::regex_search(src, matched, searchMode);
     offset = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
-    memory_block m_block = pcb->memry_queue.front();
-    pcb->memry_queue.pop();
+    size   = std::stoi(matched.str(1));
 
-    
-    clock::increase();
-    /*
-            设备管理.打印内容(进程管理.获得进程起始地址() + offset, size);
-            进程管理.阻塞该进程(中断条件_打印完成);
-    */
- }
+    Instruction inst;
+    inst.context     = src;
+    inst.instruction = [size, offset](Process &proc) -> bool {
+        int64_t pid = proc.m_pcb.m_pid;
+        auto   &cpu = Cpu::GetInstance();
 
-int commandR:: work(std::string str) {
-    int size;            //文件大小
-    int offset;          //偏移量
-    std::string fileDir; //文件目录
+        // Wakeup after Log2(size) cpu cycles.
+        cpu.RegisterTimer(Log2I(size), [pid]() -> void {
+            auto &proc_mgn = ProcessScheduler::GetInstance();
+            auto  proc     = proc_mgn.GetProcessInfo(pid);
+            if (proc == nullptr)
+                return;
+            proc_mgn.WakeupProcess(proc);
+            // TODO call console print API
+        });
+        return true;
+    };
+
+    return {inst};
+}
+
+// int commandR::work(std::string str) {
+//     int         size;    //文件大小
+//     int         offset;  //偏移量
+//     std::string fileDir; //文件目录
+//     std::smatch matched;
+
+//     std::regex_search(str, matched, searchModeFileDir);
+//     fileDir = matched.str(0);
+//     fileDir = fileDir.substr(1, fileDir.length() - 2); //?
+
+//     std::regex_search(str, matched, searchModeNumber);
+//     offset = std::stoi(matched.str(0));
+//     size   = std::stoi(matched.str(1));
+
+//     clock::increase();
+
+//     memory::Pointer<char>
+//     ptr(memory::MemoryPool::GetInstance().Allocate(size)); if (ptr.Get() ==
+//     nullptr) {
+//         // terminate process
+//     }
+//     pcb->memry_queue.emplace(size, ptr);
+
+//     /*
+//             设备管理.文件写入内存(内核.获得系统缓冲区地址(), fileDir, offset,
+//        size); 进程管理.阻塞该进程(中断条件_文件读入完成);
+//     */
+// }
+
+auto commandR::interpret(const std::string &src) -> std::vector<Instruction> {
+    int         size   = 0;
+    int         offset = 0;
+    std::string fileDir;
     std::smatch matched;
 
-    std::regex_search(str, matched, searchModeFileDir);
+    std::regex_search(src, matched, searchModeFileDir);
     fileDir = matched.str(0);
-    fileDir = fileDir.substr(1, fileDir.length() - 2);//?
+    fileDir = fileDir.substr(1, fileDir.length() - 2); // ?
 
-    std::regex_search(str, matched, searchModeNumber);
+    std::regex_search(src, matched, searchModeNumber);
     offset = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
+    size   = std::stoi(matched.str(1));
 
-    clock::increase();
+    Instruction inst;
+    inst.context = src;
+    inst.instruction =
+        [file_dir = std::move(fileDir), offset, size](Process &proc) -> bool {
+        int64_t pid = proc.m_pcb.m_pid;
+        auto   &cpu = Cpu::GetInstance();
+        cpu.RegisterTimer(
+            Log2I(size), [file_dir = std::move(file_dir), offset, size, pid]() {
+                auto &proc_mgn = ProcessScheduler::GetInstance();
+                auto  proc     = proc_mgn.GetProcessInfo(pid);
+                // Test if this process has been killed
+                if (proc == nullptr)
+                    return;
 
- memory::Pointer<char> ptr(memory::MemoryPool::GetInstance().Allocate(size));
-    if (ptr.Get() == nullptr) {
-        //terminate process
-    }
-    pcb->memry_queue.emplace(size,ptr);
+                // TODO: call file API and memory API
+                proc_mgn.WakeupProcess(proc);
+            });
+        return true;
+    };
 
-    /*
-            设备管理.文件写入内存(内核.获得系统缓冲区地址(), fileDir, offset,
-       size); 进程管理.阻塞该进程(中断条件_文件读入完成);
-    */
+    return {inst};
 }
-int commandW::work(std::string str) {
-    int size;            //文件大小
-    int offset;          //偏移量
-    std::string fileDir; //文件目录
+
+// int commandW::work(std::string str) {
+//     int         size;    //文件大小
+//     int         offset;  //偏移量
+//     std::string fileDir; //文件目录
+//     std::smatch matched;
+
+//     std::regex_search(str, matched, searchModeFileDir);
+//     fileDir = matched.str(0);
+//     fileDir = fileDir.substr(1, fileDir.length() - 2);
+
+//     std::regex_search(str, matched, searchModeNumber);
+//     offset               = std::stoi(matched.str(0));
+//     size                 = std::stoi(matched.str(1));
+//     memory_block m_block = pcb->memry_queue.front();
+//     pcb->memry_queue.pop();
+
+//     clock::increase();
+//     /*
+//             设备管理.内存写入文件(内核.获得系统缓冲区地址(), fileDir, offset,
+//        size); 进程管理.阻塞该进程(中断条件_文件写入完成);
+//     */
+// }
+
+auto commandW::interpret(const std::string &src) -> std::vector<Instruction> {
+    int         size   = 0;
+    int         offset = 0;
+    std::string fileDir;
     std::smatch matched;
 
-    std::regex_search(str, matched, searchModeFileDir);
+    std::regex_search(src, matched, searchModeFileDir);
     fileDir = matched.str(0);
     fileDir = fileDir.substr(1, fileDir.length() - 2);
 
-    std::regex_search(str, matched, searchModeNumber);
+    std::regex_search(src, matched, searchModeNumber);
     offset = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
-    memory_block m_block = pcb->memry_queue.front();
-    pcb->memry_queue.pop();
+    size   = std::stoi(matched.str(1));
 
-    clock::increase();
-    /*
-            设备管理.内存写入文件(内核.获得系统缓冲区地址(), fileDir, offset,
-       size); 进程管理.阻塞该进程(中断条件_文件写入完成);
-    */
+    Instruction inst;
+    inst.context = src;
+    inst.instruction =
+        [file_dir = std::move(fileDir), offset, size](Process &proc) -> bool {
+        int64_t pid = proc.m_pcb.m_pid;
+        auto   &cpu = Cpu::GetInstance();
+        cpu.RegisterTimer(
+            Log2I(size), [file_dir = std::move(file_dir), offset, size, pid]() {
+                auto &proc_mgn = ProcessScheduler::GetInstance();
+                auto  proc     = proc_mgn.GetProcessInfo(pid);
+                // Test if this process has been killed
+                if (proc == nullptr)
+                    return;
+
+                // TODO: call file API and memory API
+                proc_mgn.WakeupProcess(proc);
+            });
+        return true;
+    };
+
+    return {inst};
 }
-  int commandM::work() {
-    clock::increase();
-    /*
-            return 进程管理.查询该进程占用内存();
-    */
-    int sum = 0;
-    for (auto &i : pcb->memry_que) {
-        sum += i.size;
+
+// int commandM::work() {
+//     clock::increase();
+//     /*
+//             return 进程管理.查询该进程占用内存();
+//     */
+//     int sum = 0;
+//     for (auto &i : pcb->memry_que) {
+//         sum += i.size;
+//     }
+//     return sum;
+// }
+
+auto commandM::interpret(const std::string &src) -> std::vector<Instruction> {
+    Instruction inst;
+    inst.context     = src;
+    inst.instruction = [](Process &proc) {
+        size_t total = 0;
+        for (const auto &m : proc.m_resource.m_memory)
+            total += m.size;
+        (void)total;
+        // TODO call print API to print memory size
+        return false;
+    };
+    return {inst};
+}
+
+// int commandY::work() {
+//     clock::increase();
+//     return pcb->priority;
+//     /*
+//             return 进程管理.查询该进程优先级();
+//     */
+// }
+
+auto commandY::interpret(const std::string &src) -> std::vector<Instruction> {
+    Instruction inst;
+    inst.context     = src;
+    inst.instruction = [](Process &proc) {
+        auto &proc_mgn = ProcessScheduler::GetInstance();
+        auto  priority = proc_mgn.GetProcessPriority(proc);
+        (void)priority;
+        // TODO call print API to print process priority
+        return false;
+    };
+    return {inst};
+}
+
+auto commandQ::interpret(const std::string &src) -> std::vector<Instruction> {
+    Instruction inst;
+    inst.context     = src;
+    inst.instruction = [](Process &proc) {
+        auto &proc_mgn = ProcessScheduler::GetInstance();
+        proc_mgn.KillProcess(proc.m_pcb.m_pid);
+        return false;
+    };
+    return {inst};
+}
+
+// int commandQ::work() {
+//     clock::increase();
+//     /*
+//             进程管理.销毁该进程();
+//     */
+//     Terminate();
+// }
+
+} // namespace
+
+auto Intepreter::interpret(const std::string &src) -> std::vector<Instruction> {
+    if (commandC::match(src)) {
+        return commandC::interpret(src);
+    } else if (commandK::match(src)) {
+        return commandK::interpret(src);
+    } else if (commandP::match(src)) {
+        return commandP::interpret(src);
+    } else if (commandR::match(src)) {
+        return commandR::interpret(src);
+    } else if (commandW::match(src)) {
+        return commandW::interpret(src);
+    } else if (commandM::match(src)) {
+        return commandM::interpret(src);
+    } else if (commandY::match(src)) {
+        return commandY::interpret(src);
+    } else if (commandQ::match(src)) {
+        return commandQ::interpret(src);
     }
-    return sum;
-  }
- int commandY:: work() {
-     clock::increase();
-     return pcb->priority;
-    /*
-            return 进程管理.查询该进程优先级();
-    */
- }
- int commandQ::work() {
-    clock::increase();
-    /*
-            进程管理.销毁该进程();
-    */
-    Terminate();
-  }
+    return {};
+}
 
-
- 
+auto Intepreter::interpret(const std::string *src_list, size_t num_src)
+    -> std::vector<Instruction> {
+    std::vector<Instruction> ret;
+    for (size_t i = 0; i < num_src; ++i) {
+        auto temp = interpret(src_list[i]);
+        for (auto &j : temp)
+            ret.emplace_back(std::move(j));
+    }
+    return ret;
+}

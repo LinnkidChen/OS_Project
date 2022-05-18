@@ -22,9 +22,10 @@ CpuInstruction ProcessScheduler::GetNextInstruction() noexcept {
 
         CpuInstruction ret{m_current_process, i, {}};
         bool result = m_current_process->GetNextInstruction(ret.m_inst);
-        (void)result;
-        assert(result);
-
+        if (!result) {
+            KillProcess(m_current_process->m_pcb.m_pid);
+            return CpuInstruction{nullptr, {}, {}};
+        }
         return ret;
     }
 
@@ -41,9 +42,8 @@ void ProcessScheduler::WakeupProcess(Process *proc) noexcept {
     m_queues[queue_id].push_back(proc);
 }
 
-void ProcessScheduler::InstructionDone(CpuInstruction &inst,
-                                       int64_t         time_spent,
-                                       bool            is_blocked) noexcept {
+void ProcessScheduler::InstructionDone(CpuInstruction &inst, int64_t time_spent,
+                                       bool is_blocked) noexcept {
     m_current_process = nullptr;
     auto process      = inst.m_from_process;
     m_last_process    = process;
@@ -114,7 +114,6 @@ Process *
 ProcessScheduler::StartProcess(std::string              name,
                                std::vector<Instruction> program) noexcept {
     Process proc;
-    // TODO: add program start time
     proc.m_process_instructions = std::move(program);
     proc.m_next_instruction     = 0;
     proc.m_pcb.m_pid            = AllocatePID();
@@ -128,6 +127,16 @@ ProcessScheduler::StartProcess(std::string              name,
     auto    proc_ptr = std::addressof(result.first->second);
     m_queues[0].push_back(proc_ptr);
     return proc_ptr;
+}
+
+int32_t ProcessScheduler::GetProcessPriority(Process &proc) const noexcept {
+    for (size_t i = 0; i < std::size(m_queues); ++i) {
+        for (auto &p : m_queues[i]) {
+            if (p == std::addressof(proc))
+                return static_cast<int32_t>(i);
+        }
+    }
+    return -1;
 }
 
 ProcessScheduler &ProcessScheduler::GetInstance() noexcept {

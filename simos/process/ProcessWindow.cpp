@@ -1,4 +1,5 @@
 #include "ProcessWindow.h"
+#include "../compile/Compiler.h"
 #include "Cpu.h"
 #include "Process.h"
 #include "ui_ProcessWindow.h"
@@ -87,17 +88,13 @@ void ProcessWindow::StartProgram() {
         return;
 
     std::string              program_name = instructions[0].toStdString();
-    std::vector<Instruction> inst_list;
-    inst_list.reserve(instructions.size());
+    std::vector<std::string> src_list;
 
-    // TODO: Use compiler to generate real instructions
-    for (size_t i = 1; i < static_cast<size_t>(instructions.size()); ++i) {
-        Instruction inst;
-        inst.context     = instructions[i].toStdString();
-        inst.instruction = [](Process &) { return false; };
-        inst_list.emplace_back(std::move(inst));
+    for (size_t i = 2; i < static_cast<size_t>(instructions.size()); ++i) {
+        src_list.push_back(instructions[i].toStdString());
     }
 
+    auto inst_list = Intepreter::interpret(src_list.data(), src_list.size());
     ProcessScheduler::GetInstance().StartProcess(std::move(program_name),
                                                  std::move(inst_list));
 
