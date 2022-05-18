@@ -138,21 +138,22 @@ public:
     static int work();
 };
 
-const std::regex commandC::mode{"^C\\s[0-9]*\\s*$"};
-const std::regex commandC::searchMode{"[0-9]*"};
-const std::regex commandK::mode{R"(^K\s[0-9]*\s[0-9]*\s*$)"};
-const std::regex commandK::searchMode{"[0-9]*"};
-const std::regex commandP::mode{R"(^P\s[0-9]*\s[0-9]*\s*$)"};
+const std::regex commandC::mode{"^C\\s*[1-9][0-9]*\\s*$"};
+const std::regex commandC::searchMode{"[1-9][0-9]*"};
+const std::regex commandK::mode{R"(^K\s[1-9][0-9]*\s*[1-9][0-9]*\s*$)"};
+const std::regex commandK::searchMode{"[1-9][0-9]*"};
+const std::regex commandP::mode{R"(^P\s(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
 const std::regex commandP::searchMode{"[0-9]*"};
-const std::regex commandR::mode{R"(^R\s"[^"]*"\s[0-9]*\s(-1|[0-9]*)\s*$)"};
+const std::regex commandR::mode{R"(^R\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*(-1|[1-9][0-9]*)\s*$)"};
 const std::regex commandR::searchModeFileDir{R"("[^"]*")"};
-const std::regex commandR::searchModeNumber{"-?[0-9]*"};
-const std::regex commandW::mode{R"(^W\s"[^"]*"\s[0-9]*\s(-1|[0-9]*)\s*$)"};
+const std::regex commandR::searchModeNumber{"-?[0-9]*$"};
+const std::regex commandW::mode{R"(^W\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*(-1|[1-9][0-9]*)\s*$)"};
 const std::regex commandW::searchModeFileDir{R"("[^"]*")"};
-const std::regex commandW::searchModeNumber{"-?[0-9]*"};
+const std::regex commandW::searchModeNumber{"-?[0-9]*$"};
 const std::regex commandM::mode{"^M\\s*$"};
 const std::regex commandY::mode{"^Y\\s*$"};
 const std::regex commandQ::mode{"^Q\\s*$"};
+
 
 /// \brief
 ///   Clock指令，模拟使用CPU进行一定时间的计算。
@@ -500,4 +501,28 @@ auto Intepreter::interpret(const std::string *src_list, size_t num_src)
             ret.emplace_back(std::move(j));
     }
     return ret;
+}
+
+//*****标准样例
+using namespace std;
+
+int main(void)
+{
+    cout << commandC::match("C 99") << "\t\"C 99\""
+         << "\t\t\t\t\"C time\"" << endl;
+    cout << commandK::match("K 99 1024") << "\t\"K 99 1024\""
+         << "\t\t\t\"K time size\"" << endl;
+    cout << commandP::match("P 0 1024") << "\t\"P 0 1024\""
+         << "\t\t\t\"P offset size\"" << endl;
+    cout << commandR::match("R \"root//dir//doc\" 0 1024") << "\t\"R \"root//dir//doc\" 0 1024\""
+         << "\t\"R dir offset size\"" << endl;
+    cout << commandW::match("W \"root//dir//doc\" 0 1024") << "\t\"W \"root//dir//doc\" 0 1024\""
+         << "\t\"R dir offset size\"" << endl;
+    cout << commandM::match("M") << "\t\"M\""
+         << "\t\t\t\t\"M\"" << endl;
+    cout << commandY::match("Y") << "\t\"Y\""
+         << "\t\t\t\t\"Y\"" << endl;
+    cout << commandQ::match("Q") << "\t\"Q\""
+         << "\t\t\t\t\"Q\"" << endl;
+    return 0;
 }
