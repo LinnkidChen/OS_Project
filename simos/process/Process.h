@@ -138,7 +138,7 @@ public:
     static ProcessScheduler &GetInstance() noexcept;
 
 private:
-    int64_t AllocatePID() const noexcept;
+    int64_t AllocatePID() noexcept;
 
 private:
     Process *m_last_process    = nullptr;
@@ -148,6 +148,7 @@ private:
     std::deque<Process *>      m_queues[3]; // schedule queue
 
     std::map<Process *, size_t> m_blocked; // blocked processes
+    int64_t                     m_max_pid = 0;
 };
 
 #endif // PROCESS_H

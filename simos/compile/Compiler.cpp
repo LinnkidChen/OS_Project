@@ -504,25 +504,25 @@ auto Intepreter::interpret(const std::string *src_list, size_t num_src)
 }
 
 //*****标准样例
-using namespace std;
+// using namespace std;
 
-int main(void)
-{
-    cout << commandC::match("C 99") << "\t\"C 99\""
-         << "\t\t\t\t\"C time\"" << endl;
-    cout << commandK::match("K 99 1024") << "\t\"K 99 1024\""
-         << "\t\t\t\"K time size\"" << endl;
-    cout << commandP::match("P 0 1024") << "\t\"P 0 1024\""
-         << "\t\t\t\"P offset size\"" << endl;
-    cout << commandR::match("R \"root//dir//doc\" 0 1024") << "\t\"R \"root//dir//doc\" 0 1024\""
-         << "\t\"R dir offset size\"" << endl;
-    cout << commandW::match("W \"root//dir//doc\" 0 1024") << "\t\"W \"root//dir//doc\" 0 1024\""
-         << "\t\"R dir offset size\"" << endl;
-    cout << commandM::match("M") << "\t\"M\""
-         << "\t\t\t\t\"M\"" << endl;
-    cout << commandY::match("Y") << "\t\"Y\""
-         << "\t\t\t\t\"Y\"" << endl;
-    cout << commandQ::match("Q") << "\t\"Q\""
-         << "\t\t\t\t\"Q\"" << endl;
-    return 0;
-}
+// int main(void)
+// {
+//     cout << commandC::match("C 99") << "\t\"C 99\""
+//          << "\t\t\t\t\"C time\"" << endl;
+//     cout << commandK::match("K 99 1024") << "\t\"K 99 1024\""
+//          << "\t\t\t\"K time size\"" << endl;
+//     cout << commandP::match("P 0 1024") << "\t\"P 0 1024\""
+//          << "\t\t\t\"P offset size\"" << endl;
+//     cout << commandR::match("R \"root//dir//doc\" 0 1024") << "\t\"R \"root//dir//doc\" 0 1024\""
+//          << "\t\"R dir offset size\"" << endl;
+//     cout << commandW::match("W \"root//dir//doc\" 0 1024") << "\t\"W \"root//dir//doc\" 0 1024\""
+//          << "\t\"R dir offset size\"" << endl;
+//     cout << commandM::match("M") << "\t\"M\""
+//          << "\t\t\t\t\"M\"" << endl;
+//     cout << commandY::match("Y") << "\t\"Y\""
+//          << "\t\t\t\t\"Y\"" << endl;
+//     cout << commandQ::match("Q") << "\t\"Q\""
+//          << "\t\t\t\t\"Q\"" << endl;
+//     return 0;
+// }

@@ -103,12 +103,7 @@ void ProcessScheduler::KillProcess(int64_t pid) noexcept {
     m_processes.erase(it);
 }
 
-int64_t ProcessScheduler::AllocatePID() const noexcept {
-    int64_t ret = 0;
-    while (m_processes.find(ret) != m_processes.end())
-        ++ret;
-    return ret;
-}
+int64_t ProcessScheduler::AllocatePID() noexcept { return (m_max_pid++); }
 
 Process *
 ProcessScheduler::StartProcess(std::string              name,

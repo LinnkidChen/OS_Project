@@ -90,7 +90,7 @@ void ProcessWindow::StartProgram() {
     std::string              program_name = instructions[0].toStdString();
     std::vector<std::string> src_list;
 
-    for (size_t i = 2; i < static_cast<size_t>(instructions.size()); ++i) {
+    for (size_t i = 1; i < static_cast<size_t>(instructions.size()); ++i) {
         src_list.push_back(instructions[i].toStdString());
     }
 
