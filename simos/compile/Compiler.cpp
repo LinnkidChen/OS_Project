@@ -140,16 +140,16 @@ public:
 
 const std::regex commandC::mode{"^C\\s*[1-9][0-9]*\\s*$"};
 const std::regex commandC::searchMode{"[1-9][0-9]*"};
-const std::regex commandK::mode{R"(^K\s[1-9][0-9]*\s*[1-9][0-9]*\s*$)"};
+const std::regex commandK::mode{R"(^K\s*[1-9][0-9]*\s*[1-9][0-9]*)"};
 const std::regex commandK::searchMode{"[1-9][0-9]*"};
-const std::regex commandP::mode{R"(^P\s(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
+const std::regex commandP::mode{R"(^P\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
 const std::regex commandP::searchMode{"[0-9]*"};
-const std::regex commandR::mode{R"(^R\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*(-1|[1-9][0-9]*)\s*$)"};
+const std::regex commandR::mode{R"(^R\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
 const std::regex commandR::searchModeFileDir{R"("[^"]*")"};
-const std::regex commandR::searchModeNumber{"-?[0-9]*$"};
-const std::regex commandW::mode{R"(^W\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*(-1|[1-9][0-9]*)\s*$)"};
+const std::regex commandR::searchModeNumber{"[0-9]*"};
+const std::regex commandW::mode{R"(^W\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
 const std::regex commandW::searchModeFileDir{R"("[^"]*")"};
-const std::regex commandW::searchModeNumber{"-?[0-9]*$"};
+const std::regex commandW::searchModeNumber{"[0-9]*"};
 const std::regex commandM::mode{"^M\\s*$"};
 const std::regex commandY::mode{"^Y\\s*$"};
 const std::regex commandQ::mode{"^Q\\s*$"};
@@ -526,3 +526,23 @@ auto Intepreter::interpret(const std::string *src_list, size_t num_src)
 //          << "\t\t\t\t\"Q\"" << endl;
 //     return 0;
 // }
+
+//*****搜索方法
+using namespace std;
+
+int main(void)
+{
+    std::smatch matched;
+
+    std::string str = "K 10 1024";
+    std::string::const_iterator iter_begin = str.begin();
+    std::string::const_iterator iter_end = str.end();
+
+    while(regex_search(iter_begin, iter_end, matched, commandK::searchMode))
+    {
+        cout << matched[0] << endl;
+        iter_begin = matched[0].second;
+    }
+
+    return 0;
+}
