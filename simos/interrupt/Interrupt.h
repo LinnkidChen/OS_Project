@@ -10,7 +10,7 @@
 
 // 应在初始化时生成一个唯一的interrupt类
 // 请使用interrupt::getInstance()调用public函数
-// 如：interrupt::getInstance().check_switch
+// 如：interrupt::getInstance().check_switch()
 //
 class interrupt {
     enum ITRTYPE { input, output, soft, none = 0 };//TODO 讨论中断类型

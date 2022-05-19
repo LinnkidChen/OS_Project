@@ -23,7 +23,7 @@ void interrupt::work(intVec& Input) {
         //call keyboard input
     }
     if (Input.itrpt_type == output) {
-        //call keyboard output
+        //call Monitor output
     }
 }
 
