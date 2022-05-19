@@ -11,13 +11,12 @@ ProcessWindow::ProcessWindow(QWidget *parent)
     ui->setupUi(this);
 
     connect(ui->do_all_btn, &QPushButton::clicked, [this]() {
-        Cpu::GetInstance().Run(false);
+        Cpu::GetInstance().Run(false, [this]() { this->UpdateContents(); });
         this->UpdateContents();
     });
 
     connect(ui->step_in_btn, &QPushButton::clicked, [this]() {
-        Cpu::GetInstance().Run(true);
-        this->UpdateContents();
+        Cpu::GetInstance().Run(true, [this]() { this->UpdateContents(); });
     });
 
     connect(ui->program_start_btn, &QPushButton::clicked, [this]() {

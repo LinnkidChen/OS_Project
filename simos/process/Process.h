@@ -71,6 +71,7 @@ struct CpuInstruction {
     Process *const m_from_process;
     const size_t   m_last_queue;
     Instruction    m_inst;
+    bool           m_add_cycle;
 };
 
 class ProcessScheduler {

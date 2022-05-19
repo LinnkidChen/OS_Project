@@ -26,19 +26,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    static int work(std::string str) {
-        int         clockNeed; //所需周期
-        std::smatch matched;
-
-        std::regex_search(str, matched, searchMode);
-        clockNeed = std::stoi(matched.str(0));
-        for (; clockNeed > 0; clockNeed--) {
-            // clock::increase();
-            //进程管理.减少该进程时间片();
-        }
-        return 0;
-    }
 };
 
 class commandK {
@@ -51,8 +38,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    static int work(std::string str);
 };
 
 class commandP {
@@ -65,8 +50,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    static int work(std::string str);
 };
 
 class commandR {
@@ -80,8 +63,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    int work(std::string str);
 };
 
 class commandW {
@@ -95,8 +76,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    static int work(std::string str);
 };
 
 class commandM {
@@ -108,8 +87,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    static int work();
 };
 
 class commandY {
@@ -121,8 +98,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    static int work();
 };
 
 class commandQ {
@@ -134,8 +109,6 @@ public:
     }
 
     static auto interpret(const std::string &src) -> std::vector<Instruction>;
-
-    static int work();
 };
 
 const std::regex commandC::mode{"^C\\s*[1-9][0-9]*\\s*$"};
@@ -143,17 +116,18 @@ const std::regex commandC::searchMode{"[1-9][0-9]*"};
 const std::regex commandK::mode{R"(^K\s*[1-9][0-9]*\s*[1-9][0-9]*)"};
 const std::regex commandK::searchMode{"[1-9][0-9]*"};
 const std::regex commandP::mode{R"(^P\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
-const std::regex commandP::searchMode{"[0-9]*"};
-const std::regex commandR::mode{R"(^R\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
+const std::regex commandP::searchMode{"[0-9]+"};
+const std::regex commandR::mode{
+    R"(^R\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
 const std::regex commandR::searchModeFileDir{R"("[^"]*")"};
-const std::regex commandR::searchModeNumber{"[0-9]*"};
-const std::regex commandW::mode{R"(^W\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
+const std::regex commandR::searchModeNumber{"[0-9]+"};
+const std::regex commandW::mode{
+    R"(^W\s*"[^"]*"\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
 const std::regex commandW::searchModeFileDir{R"("[^"]*")"};
-const std::regex commandW::searchModeNumber{"[0-9]*"};
+const std::regex commandW::searchModeNumber{"[0-9]+"};
 const std::regex commandM::mode{"^M\\s*$"};
 const std::regex commandY::mode{"^Y\\s*$"};
 const std::regex commandQ::mode{"^Q\\s*$"};
-
 
 /// \brief
 ///   Clock指令，模拟使用CPU进行一定时间的计算。
@@ -210,7 +184,8 @@ auto commandK::interpret(const std::string &src) -> std::vector<Instruction> {
 
     std::regex_search(src, matched, searchMode);
     time = std::stoi(matched.str(0));
-    size = std::stoi(matched.str(1));
+    std::regex_search(src, matched, searchMode);
+    size = std::stoi(matched.str(0));
 
     Instruction inst;
     inst.context     = src;
@@ -254,7 +229,8 @@ auto commandP::interpret(const std::string &src) -> std::vector<Instruction> {
 
     std::regex_search(src, matched, searchMode);
     offset = std::stoi(matched.str(0));
-    size   = std::stoi(matched.str(1));
+    std::regex_search(src, matched, searchMode);
+    size = std::stoi(matched.str(0));
 
     Instruction inst;
     inst.context     = src;
@@ -318,7 +294,8 @@ auto commandR::interpret(const std::string &src) -> std::vector<Instruction> {
 
     std::regex_search(src, matched, searchModeNumber);
     offset = std::stoi(matched.str(0));
-    size   = std::stoi(matched.str(1));
+    std::regex_search(src, matched, searchModeNumber);
+    size = std::stoi(matched.str(0));
 
     Instruction inst;
     inst.context = src;
@@ -378,7 +355,8 @@ auto commandW::interpret(const std::string &src) -> std::vector<Instruction> {
 
     std::regex_search(src, matched, searchModeNumber);
     offset = std::stoi(matched.str(0));
-    size   = std::stoi(matched.str(1));
+    std::regex_search(src, matched, searchModeNumber);
+    size = std::stoi(matched.str(0));
 
     Instruction inst;
     inst.context = src;
@@ -514,9 +492,11 @@ auto Intepreter::interpret(const std::string *src_list, size_t num_src)
 //          << "\t\t\t\"K time size\"" << endl;
 //     cout << commandP::match("P 0 1024") << "\t\"P 0 1024\""
 //          << "\t\t\t\"P offset size\"" << endl;
-//     cout << commandR::match("R \"root//dir//doc\" 0 1024") << "\t\"R \"root//dir//doc\" 0 1024\""
+//     cout << commandR::match("R \"root//dir//doc\" 0 1024") << "\t\"R
+//     \"root//dir//doc\" 0 1024\""
 //          << "\t\"R dir offset size\"" << endl;
-//     cout << commandW::match("W \"root//dir//doc\" 0 1024") << "\t\"W \"root//dir//doc\" 0 1024\""
+//     cout << commandW::match("W \"root//dir//doc\" 0 1024") << "\t\"W
+//     \"root//dir//doc\" 0 1024\""
 //          << "\t\"R dir offset size\"" << endl;
 //     cout << commandM::match("M") << "\t\"M\""
 //          << "\t\t\t\t\"M\"" << endl;
@@ -528,21 +508,21 @@ auto Intepreter::interpret(const std::string *src_list, size_t num_src)
 // }
 
 //*****搜索方法
-using namespace std;
+// using namespace std;
 
-int main(void)
-{
-    std::smatch matched;
+// int main(void)
+// {
+//     std::smatch matched;
 
-    std::string str = "K 10 1024";
-    std::string::const_iterator iter_begin = str.begin();
-    std::string::const_iterator iter_end = str.end();
+//     std::string str = "K 10 1024";
+//     std::string::const_iterator iter_begin = str.begin();
+//     std::string::const_iterator iter_end = str.end();
 
-    while(regex_search(iter_begin, iter_end, matched, commandK::searchMode))
-    {
-        cout << matched[0] << endl;
-        iter_begin = matched[0].second;
-    }
+//     while(regex_search(iter_begin, iter_end, matched, commandK::searchMode))
+//     {
+//         cout << matched[0] << endl;
+//         iter_begin = matched[0].second;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }

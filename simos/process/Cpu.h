@@ -1,6 +1,8 @@
 #ifndef CPU_H
 #define CPU_H
 
+#include <QTimer>
+
 #include <cstdint>
 #include <functional>
 #include <queue>
@@ -22,7 +24,7 @@ public:
     Cpu(Cpu &&)  = delete;
     Cpu &operator=(Cpu &&) = delete;
 
-    void Run(bool step = false) noexcept;
+    void Run(bool step, std::function<void()> flush_window) noexcept;
 
     int64_t GetCurrentTime() const noexcept { return m_circles; }
 
@@ -38,6 +40,8 @@ public:
     static Cpu &GetInstance() noexcept;
 
 private:
+    void Tick() noexcept;
+
     struct TimerCallbackCompare {
         bool operator()(const TimerCallback &lhs,
                         const TimerCallback &rhs) const noexcept {
@@ -48,10 +52,11 @@ private:
 private:
     int64_t     m_circles = 0;
     std::string m_last_inst;
-    std::priority_queue<TimerCallback,
-                        std::vector<TimerCallback>,
+    std::priority_queue<TimerCallback, std::vector<TimerCallback>,
                         TimerCallbackCompare>
         m_timers;
+
+    QTimer m_timer;
 };
 
 #endif // CPU_H

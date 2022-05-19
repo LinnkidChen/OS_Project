@@ -20,16 +20,16 @@ CpuInstruction ProcessScheduler::GetNextInstruction() noexcept {
         assert(m_current_process != nullptr);
         m_current_process->m_pcb.m_state = ProcessState::Running;
 
-        CpuInstruction ret{m_current_process, i, {}};
+        CpuInstruction ret{m_current_process, i, {}, true};
         bool result = m_current_process->GetNextInstruction(ret.m_inst);
         if (!result) {
             KillProcess(m_current_process->m_pcb.m_pid);
-            return CpuInstruction{nullptr, {}, {}};
+            return CpuInstruction{nullptr, {}, {}, false};
         }
         return ret;
     }
 
-    return CpuInstruction{nullptr, {}, {}};
+    return CpuInstruction{nullptr, {}, {}, true};
 }
 
 void ProcessScheduler::WakeupProcess(Process *proc) noexcept {
@@ -38,6 +38,7 @@ void ProcessScheduler::WakeupProcess(Process *proc) noexcept {
     assert(it->first == proc);
     auto queue_id = it->second;
     m_blocked.erase(it);
+    proc->m_pcb.m_state     = ProcessState::Waiting;
     proc->m_pcb.m_time_left = NUM_INST_PER_LEVEL * queue_id;
     m_queues[queue_id].push_back(proc);
 }
@@ -98,6 +99,13 @@ void ProcessScheduler::KillProcess(int64_t pid) noexcept {
         }
         if (it != q.end())
             q.erase(it);
+    }
+
+    for (auto it = m_blocked.begin(); it != m_blocked.end(); ++it) {
+        if (it->first == ptr) {
+            m_blocked.erase(it);
+            break;
+        }
     }
 
     m_processes.erase(it);
