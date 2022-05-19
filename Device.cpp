@@ -11,11 +11,14 @@ public:
     virtual DeviceStateType getState();     //获取设备状态
     virtual std::string getIDString();      //获取设备ID字符串<用于显示ID>
     virtual void setName(std::string name); //设置设备名称（设备新名称）
+
+    //打印机和终端特有
+    virtual std::string getBuffer(); //获取打印机或终端内容
 };
 
 //******************************抽象设备******************************
 
-class Device : public Device_Interface
+class Device : public DeviceDict
 {
 private:
     int ID;          //设备ID
@@ -31,7 +34,7 @@ public:
         this->ID = ID;
         this->type = type;
 
-        this->name += this->getType();
+        this->name += DeviceDict::deviceTypeString(this->getType());
         this->name += this->getIDString();
         this->state = DeviceStateType::free;
     }
@@ -74,21 +77,13 @@ public:
 class Device_Disk : public Device //硬盘设备
 {
 private:
-    std::map<int, std::string> buffer;
     static std::map<int, Device_Disk> diskList; //硬盘列表
 
 public:
     Device_Disk() {}
-    Device_Disk(int ID) : Device(ID, DeviceType::disk) {}
-
-    void write(int address, std::string content)
+    Device_Disk(int ID) : Device(ID, DeviceType::disk)
     {
-        buffer[address] = content;
-    }
-
-    static void addDevice(Device_Disk device)
-    {
-        diskList[device.getID()] = device;
+        diskList[ID] = *this;
     }
 
     static void removeDevice(int deviceID)
@@ -106,45 +101,16 @@ public:
 
     static int disk_write(int address, std::string content)
     {
-        if (diskList.empty() != 1)
-        {
-            for (std::map<int, Device_Disk>::iterator iter = diskList.begin(); iter != diskList.end(); iter++)
-            {
-                if (iter->second.getState() != DeviceStateType::busy)
-                {
-                    Device_Disk &temp = diskList.begin()->second;
-                    temp.write(address, content);
-                    temp.setSate(DeviceStateType::busy);
-                    // Cpu::GetInstance().RegisterTimer(content.length() + 1, [&temp](){temp.setSate(DeviceStateType::free);});
-                    return 1;
-                }
-            }
-            return 0;
-        }
-        else
-            return -1;
     }
-
     static std::string disk_read(int address, int size_byte)
     {
-        if (diskList.empty() != 1)
-        {
-            std::string temp;
-            if (rand() % 2 == 0)
-            {
-                for (int i = 0; i < size_byte; i++)
-                    temp += (char)('0' + rand() % 9);
-            }
-            else
-            {
-                for (int i = 0; i < size_byte; i++)
-                    temp += (char)('a' + rand() % 26);
-            }
-            // cpu.RegisterTimer(size_byte % 10 + 1, [](){});
-            // return temp;
-        }
-        else
-            return "";
+    }
+
+    static int disk_write(int deviceID, int address, std::string content)
+    {
+    }
+    static std::string disk_read(int deviceID, int address, int size_byte)
+    {
     }
 };
 
@@ -155,11 +121,9 @@ private:
 
 public:
     Device_Keyboard() {}
-    Device_Keyboard(int ID) : Device(ID, DeviceType::keyboard) {}
-
-    static void addDevice(Device_Keyboard device)
+    Device_Keyboard(int ID) : Device(ID, DeviceType::keyboard)
     {
-        keyboardList[device.getID()] = device;
+        keyboardList[ID] = *this;
     }
 
     static void removeDevice(int deviceID)
@@ -177,20 +141,26 @@ public:
 
     static char keyboard_read()
     {
-        if (keyboardList.empty() != 1)
+        if (keyboardList.empty() != true)
         {
-            if (rand() % 2 == 0)
-            {
-                char temp = (char)('0' + rand() % 9);
-                // cpu.RegisterTimer(1, [](){});
-                // return temp;
-            }
-            else
-            {
-                char temp = (char)('a' + rand() % 26);
-                // cpu.RegisterTimer(1, [](){});
-                // return temp;
-            }
+            // if (rand() % 2 == 0)
+            //     char temp = (char)('0' + rand() % 9);
+            // else
+            //     char temp = (char)('a' + rand() % 26);
+            return '0';
+        }
+        else
+            return '\0';
+    }
+    static char keyboard_read(int deviceID)
+    {
+        if (keyboardList.count(deviceID) == 1)
+        {
+            // if (rand() % 2 == 0)
+            //     char temp = (char)('0' + rand() % 9);
+            // else
+            //     char temp = (char)('a' + rand() % 26);
+            return '0';
         }
         else
             return '\0';
@@ -205,7 +175,10 @@ private:
 
 public:
     Device_Printer() {}
-    Device_Printer(int ID) : Device(ID, DeviceType::printer) {}
+    Device_Printer(int ID) : Device(ID, DeviceType::printer)
+    {
+        printerList[ID] = *this;
+    }
 
     std::string getBuffer()
     {
@@ -215,11 +188,6 @@ public:
     void write(std::string content)
     {
         buffer += content;
-    }
-
-    static void addDevice(Device_Printer device)
-    {
-        printerList[device.getID()] = device;
     }
 
     static void removeDevice(int deviceID)
@@ -237,18 +205,30 @@ public:
 
     static int printer_write(std::string content)
     {
-        if (printerList.empty() != 1)
+        if (printerList.empty() != true)
         {
-            for (std::map<int, Device_Printer>::iterator iter = printerList.begin(); iter != printerList.end(); iter++)
+            if (printerList.begin()->second.getState() != DeviceStateType::busy)
             {
-                if (iter->second.getState() != DeviceStateType::busy)
-                {
-                    Device_Printer temp = printerList.begin()->second;
-                    temp.write(content);
-                    temp.setSate(DeviceStateType::busy);
-                    // cpu.RegisterTimer(content.length() % 10 + 1, [temp](){temp.setSate(DeviceStateType::free);});
-                    return 1;
-                }
+                Device_Printer temp = printerList.begin()->second;
+                temp.write(content);
+                temp.setSate(DeviceStateType::busy);
+                return 1;
+            }
+            return 0;
+        }
+        else
+            return -1;
+    }
+
+    static int printer_write(int deviceID, std::string content)
+    {
+        if (printerList.count(deviceID) == 1)
+        {
+            if (printerList[deviceID].getState() != DeviceStateType::busy)
+            {
+                printerList[deviceID].write(content);
+                printerList[deviceID].setSate(DeviceStateType::busy);
+                return 1;
             }
             return 0;
         }
@@ -265,7 +245,10 @@ private:
 
 public:
     Device_Terminal() {}
-    Device_Terminal(int ID) : Device(ID, DeviceType::terminal) {}
+    Device_Terminal(int ID) : Device(ID, DeviceType::terminal)
+    {
+        terminalList[ID] = *this;
+    }
 
     std::string getBuffer()
     {
@@ -275,11 +258,6 @@ public:
     void write(std::string content)
     {
         buffer += content;
-    }
-
-    static void addDevice(Device_Terminal device)
-    {
-        terminalList[device.getID()] = device;
     }
 
     static void removeDevice(int deviceID)
@@ -297,18 +275,30 @@ public:
 
     static int terminal_write(std::string content)
     {
-        if (terminalList.empty() != 1)
+        if (terminalList.empty() != true)
         {
-            for (std::map<int, Device_Terminal>::iterator iter = terminalList.begin(); iter != terminalList.end(); iter++)
+            if (terminalList.begin()->second.getState() != DeviceStateType::busy)
             {
-                if (iter->second.getState() != DeviceStateType::busy)
-                {
-                    Device_Terminal temp = terminalList.begin()->second;
-                    temp.write(content);
-                    temp.setSate(DeviceStateType::busy);
-                    // cpu.RegisterTimer(content.length() + 1, [temp](){temp.setSate(DeviceStateType::free);});
-                    return 1;
-                }
+                Device_Terminal temp = terminalList.begin()->second;
+                temp.write(content);
+                temp.setSate(DeviceStateType::busy);
+                return 1;
+            }
+            return 0;
+        }
+        else
+            return -1;
+    }
+
+    static int terminal_write(int deviceID, std::string content)
+    {
+        if (terminalList.count(deviceID) == 1)
+        {
+            if (terminalList[deviceID].getState() != DeviceStateType::busy)
+            {
+                terminalList[deviceID].write(content);
+                terminalList[deviceID].setSate(DeviceStateType::busy);
+                return 1;
             }
             return 0;
         }
