@@ -51,7 +51,7 @@ void ProcessScheduler::InstructionDone(CpuInstruction &inst, int64_t time_spent,
 
     // this process finished executing
     if (process->m_next_instruction >= process->m_process_instructions.size()) {
-        m_processes.erase(process->m_pcb.m_pid);
+        KillProcess(process->m_pcb.m_pid);
         m_last_process = nullptr;
     } else {
         process->m_pcb.m_time_left -= time_spent;
@@ -81,6 +81,10 @@ void ProcessScheduler::KillProcess(int64_t pid) noexcept {
         return;
 
     it->second.m_pcb.m_state = ProcessState::Destroying;
+
+    for (auto &m : it->second.m_resource.m_memory) {
+        memory::MemoryPool::GetInstance().Deallocate(m.ptr);
+    }
 
     if (m_last_process == std::addressof(it->second))
         m_last_process = nullptr;

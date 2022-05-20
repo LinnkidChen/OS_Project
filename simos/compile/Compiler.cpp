@@ -1,6 +1,9 @@
 #include "Compiler.h"
+#include "../DeviceManagement/DeviceManager.h"
 #include "../memory/MemoryManagement.h"
 #include "../process/Cpu.h"
+
+#include <QDebug>
 
 #include <iostream>
 #include <queue>
@@ -33,7 +36,7 @@ class commandK {
 public:
     static const std::regex mode;
     static const std::regex searchMode;
-    static const syd::regex searchModeString;
+    static const std::regex searchModeString;
 
     static bool match(const std::string &str) {
         return std::regex_match(str, mode);
@@ -219,6 +222,11 @@ auto commandK::interpret(const std::string &src) -> std::vector<Instruction> {
                               ProcessResource::AllocatedMemory mem_resource;
                               mem_resource.ptr  = str;
                               mem_resource.size = key_input.size() + 1;
+                              proc->m_resource.m_memory.push_back(
+                                  std::move(mem_resource));
+
+                              qDebug() << "Memory resource size: "
+                                       << mem_resource.size;
                           });
         return true; // Block current thread
     };
@@ -432,8 +440,9 @@ auto commandM::interpret(const std::string &src) -> std::vector<Instruction> {
         size_t total = 0;
         for (const auto &m : proc.m_resource.m_memory)
             total += m.size;
-        (void)total;
-        // TODO call print API to print memory size
+        DeviceManager::terminal_write(
+            "PID: " + std::to_string(proc.m_pcb.m_pid) +
+            ", Memory usage: " + std::to_string(total) + '\n');
         return false;
     };
     return {inst};
@@ -453,8 +462,9 @@ auto commandY::interpret(const std::string &src) -> std::vector<Instruction> {
     inst.instruction = [](Process &proc) {
         auto &proc_mgn = ProcessScheduler::GetInstance();
         auto  priority = proc_mgn.GetProcessPriority(proc);
-        (void)priority;
-        // TODO call print API to print process priority
+        DeviceManager::terminal_write(
+            "PID: " + std::to_string(proc.m_pcb.m_pid) +
+            ", Process priority: " + std::to_string(priority) + '\n');
         return false;
     };
     return {inst};

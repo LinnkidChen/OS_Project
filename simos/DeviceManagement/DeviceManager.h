@@ -33,7 +33,7 @@ public:
     static std::map<int, Device>
     getDeviceList(DeviceType deviceType); //获取设备列表
 
-    static int freeDevice(deviceID); //将设备状态设为空闲（设备ID）
+    static int freeDevice(int deviceID); //将设备状态设为空闲（设备ID）
     // 0，设置失败：设备ID不存在
     // 1，设置成功
 

@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 
+#include "DeviceManagement/dvmainwindow.h"
 #include "process/Cpu.h"
 #include "process/Process.h"
 #include "process/ProcessWindow.h"
@@ -26,5 +27,7 @@ int main(int argc, char *argv[]) {
 
   ProcessWindow proc_window;
   proc_window.show();
+  DVMainWindow device_window;
+  device_window.show();
   return a.exec();
 }

@@ -80,10 +80,12 @@ void DVMainWindow::addDevice(){
 void DVMainWindow::removeDevice(){
   char buffer[512]={};
   int id;
-  QString item=this->ui->devicelist->currentItem()->text();
-  QStringList list1=item.split(' ',Qt::SkipEmptyParts);
-  DeviceManager::removeDevice(list1.at(3).toInt());
+  if (this->ui->devicelist->currentRow() < 0)
+      return;
 
+  QString     item  = this->ui->devicelist->currentItem()->text();
+  QStringList list1 = item.split(' ', Qt::SkipEmptyParts);
+  DeviceManager::removeDevice(list1.at(3).toInt());
 }
 void DVMainWindow::printPrinter(QString input){
   ui->Printer->setText(input);

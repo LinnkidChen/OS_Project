@@ -2,6 +2,11 @@
 #define DEVICE_H
 
 #include "DeviceDict.h"
+#include "dvmainwindow.h"
+
+#include <QString>
+
+extern DVMainWindow *w;
 
 //******************************外部接口******************************
 

@@ -5,6 +5,8 @@ void Cpu::Run(bool step, std::function<void()> flush_window) noexcept {
     if (step) {
         m_timer.stop();
         Tick();
+        if (flush_window)
+            flush_window();
     } else {
         m_timer.callOnTimeout([this, flush_window]() {
             auto &proc = ProcessScheduler::GetInstance();
