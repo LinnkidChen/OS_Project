@@ -3,7 +3,7 @@
 * 模拟使用CPU进行一定时间的计算
 * 可选：传入参数进行具体的计算
 * clock: int类型 表示占用的时钟数。
-2. K time -Maxsize=1024
+2. K time [input string]
 * 在内存中找一块区域将键盘输入写入。
 * time :使用的时钟数
 * MaxSize: 供写入的最大容量 默认为1024

@@ -9,6 +9,9 @@ CONFIG += c++20
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+     simos/DeviceManagement/Device.cpp \
+     simos/DeviceManagement/DeviceManager.cpp \
+     simos/DeviceManagement/dvmainwindow.cpp \
      simos/FileSystemSimulateWindow.cpp \
      simos/MemorySimulateWindow.cpp \
      simos/ProcessSimulateWindow.cpp \
@@ -21,6 +24,10 @@ SOURCES += \
      simos/process/ProcessWindow.cpp
 
 HEADERS += \
+     simos/DeviceManagement/Device.h \
+     simos/DeviceManagement/DeviceDict.h \
+     simos/DeviceManagement/DeviceManager.h \
+     simos/DeviceManagement/dvmainwindow.h \
      simos/FileSystemSimulateWindow.h \
      simos/MainWindow.h \
      simos/MemorySimulateWindow.h \
@@ -33,6 +40,7 @@ HEADERS += \
      simos/process/ProcessWindow.h
 
 FORMS += \
+     simos/DeviceManagement/dvmainwindow.ui \
      simos/process/ProcessWindow.ui \
      ui/FileSystemSimulateWindow.ui \
      ui/MainWindow.ui \

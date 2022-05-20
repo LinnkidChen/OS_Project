@@ -1,31 +1,38 @@
 #include "dvmainwindow.h"
+#include "DeviceManager.h"
 #include "ui_dvmainwindow.h"
-#include "DeviceManager.cpp"
+
+DVMainWindow *w;
 
 DVMainWindow::DVMainWindow(QWidget *parent)
     : QMainWindow(parent)
       , ui(new Ui::DVMainWindow)
 {
-  ui->setupUi(this);
-  this->setWindowTitle("设备管理");
-  ui->label->setText("类型");
+    w = this;
 
-  ui->label_2->setText("设备ID");
-  ui->label_3->setText("设备名称");
-  ui->label_4->setText("状态");
-  ui->label_5->setText("选择添加设备的类型");
-  ui->TypeChoose->addItem(QString("Keyboard"));
-  ui->TypeChoose->addItem(QString("Disk"));
-  ui->TypeChoose->addItem(QString("Printer"));
-  ui->TypeChoose->addItem(QString("terminal"));
-  ui->add->setText("添加");
-  ui->delete_->setText("删除");
-  ui->refresh->setText("刷新");
+    ui->setupUi(this);
+    this->setWindowTitle("设备管理");
+    ui->label->setText("类型");
 
-  DeviceManager::addDevice(DeviceDict::disk);
-  connect(ui->refresh,&QPushButton::clicked,[this](){this->UpdateContents(this);});
-  connect(ui->add,&QPushButton::clicked,[this](){this->addDevice();});
-connect(ui->delete_,&QPushButton::clicked,[this](){this->removeDevice();});
+    ui->label_2->setText("设备ID");
+    ui->label_3->setText("设备名称");
+    ui->label_4->setText("状态");
+    ui->label_5->setText("选择添加设备的类型");
+    ui->TypeChoose->addItem(QString("Keyboard"));
+    ui->TypeChoose->addItem(QString("Disk"));
+    ui->TypeChoose->addItem(QString("Printer"));
+    ui->TypeChoose->addItem(QString("terminal"));
+    ui->add->setText("添加");
+    ui->delete_->setText("删除");
+    ui->refresh->setText("刷新");
+
+    DeviceManager::addDevice(DeviceDict::disk);
+    connect(ui->refresh, &QPushButton::clicked, [this]() {
+        this->UpdateContents(this);
+    });
+    connect(ui->add, &QPushButton::clicked, [this]() { this->addDevice(); });
+    connect(
+        ui->delete_, &QPushButton::clicked, [this]() { this->removeDevice(); });
 }
 
 DVMainWindow::~DVMainWindow()

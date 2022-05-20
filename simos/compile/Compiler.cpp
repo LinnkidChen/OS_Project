@@ -1,4 +1,5 @@
 #include "Compiler.h"
+#include "../memory/MemoryManagement.h"
 #include "../process/Cpu.h"
 
 #include <iostream>
@@ -179,25 +180,44 @@ auto commandC::interpret(const std::string &src) -> std::vector<Instruction> {
 
 auto commandK::interpret(const std::string &src) -> std::vector<Instruction> {
     int                  time = 0;
-    [[maybe_unused]] int size = 1024;
     std::smatch          matched;
 
     std::regex_search(src, matched, searchMode);
     time = std::stoi(matched.str(0));
-    std::regex_search(src, matched, searchMode);
-    size = std::stoi(matched.str(0));
+    std::string key_input = matched.suffix();
 
     Instruction inst;
     inst.context     = src;
-    inst.instruction = [time](Process &proc) -> bool {
+    inst.instruction =
+        [time, key_input = std::move(key_input)](Process &proc) -> bool {
         int64_t pid = proc.m_pcb.m_pid;
         auto   &cpu = Cpu::GetInstance();
-        cpu.RegisterTimer(static_cast<uint64_t>(time), [pid]() {
-            auto &proc_mgn = ProcessScheduler::GetInstance();
-            auto  proc     = proc_mgn.GetProcessInfo(pid);
-            if (proc != nullptr)
-                proc_mgn.WakeupProcess(proc);
-        });
+        cpu.RegisterTimer(static_cast<uint64_t>(time),
+                          [pid, key_input = std::move(key_input)]() {
+                              auto &proc_mgn = ProcessScheduler::GetInstance();
+                              auto  proc     = proc_mgn.GetProcessInfo(pid);
+                              if (proc == nullptr)
+                                  return;
+
+                              proc_mgn.WakeupProcess(proc);
+
+                              // Allocate memory and write keyboard input to it
+                              auto ptr =
+                                  memory::MemoryPool::GetInstance().Allocate(
+                                      key_input.size() + 1);
+
+                              memory::Pointer<char> str =
+                                  memory::Pointer<char>(ptr);
+                              for (size_t i = 0; i < key_input.size(); ++i) {
+                                  str[i] = key_input[i];
+                              }
+                              str[key_input.size()] = '\0';
+
+                              // Mount memory resource to process
+                              ProcessResource::AllocatedMemory mem_resource;
+                              mem_resource.ptr  = str;
+                              mem_resource.size = key_input.size() + 1;
+                          });
         return true; // Block current thread
     };
 
@@ -239,12 +259,22 @@ auto commandP::interpret(const std::string &src) -> std::vector<Instruction> {
         auto   &cpu = Cpu::GetInstance();
 
         // Wakeup after Log2(size) cpu cycles.
-        cpu.RegisterTimer(Log2I(size), [pid]() -> void {
+        cpu.RegisterTimer(Log2I(size), [pid, offset, size]() mutable {
             auto &proc_mgn = ProcessScheduler::GetInstance();
             auto  proc     = proc_mgn.GetProcessInfo(pid);
             if (proc == nullptr)
                 return;
+
             proc_mgn.WakeupProcess(proc);
+            for (const auto &i : proc->m_resource.m_memory) {
+                if (i.size <= offset) {
+                    offset -= i.size;
+                    continue;
+                } else {
+
+                    break;
+                }
+            }
             // TODO call console print API
         });
         return true;
