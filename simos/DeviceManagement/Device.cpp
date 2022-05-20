@@ -187,7 +187,9 @@ public:
 
     void write(std::string content)
     {
-        buffer += content;
+        //TODO
+      w->printPrinter ( QString::fromStdString(content));
+
     }
 
     static void removeDevice(int deviceID)
@@ -257,7 +259,7 @@ public:
 
     void write(std::string content)
     {
-        buffer += content;
+        w->printTerminal ( QString::fromStdString(content));
     }
 
     static void removeDevice(int deviceID)
