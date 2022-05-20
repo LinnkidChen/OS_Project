@@ -137,7 +137,12 @@ public:
 
     std::string getBuffer() { return buffer; }
 
-    void write(std::string content) { buffer += content; }
+    void write(std::string content)
+    {
+        //TODO
+      w->printPrinter ( QString::fromStdString(content));
+
+    }
 
     static void removeDevice(int deviceID) { printerList.erase(deviceID); }
 
@@ -189,7 +194,10 @@ public:
 
     std::string getBuffer() { return buffer; }
 
-    void write(std::string content) { buffer += content; }
+    void write(std::string content)
+    {
+        w->printTerminal ( QString::fromStdString(content));
+    }
 
     static void removeDevice(int deviceID) { terminalList.erase(deviceID); }
 

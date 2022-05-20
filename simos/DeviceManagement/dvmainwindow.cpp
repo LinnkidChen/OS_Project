@@ -85,3 +85,13 @@ void DVMainWindow::removeDevice(){
   DeviceManager::removeDevice(list1.at(3).toInt());
 
 }
+void DVMainWindow::printPrinter(QString input){
+  ui->Printer->setText(input);
+
+
+}
+void DVMainWindow::printTerminal(QString input){
+  ui->Terminal->setText(input);
+
+
+}

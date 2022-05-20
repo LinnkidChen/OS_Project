@@ -17,6 +17,9 @@ QT_END_NAMESPACE
       void UpdateContents(DVMainWindow*);
       void addDevice();
       void removeDevice();
+     void printTerminal(QString input);
+        void printPrinter(QString input);
+
 
 private:
   Ui::DVMainWindow *ui;
