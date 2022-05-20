@@ -19,19 +19,24 @@ public:
 
     //--------------------驱动接口--------------------
 
-    static int disk_write(int address, std::string content); //磁盘写（地址，内容）
+    static int disk_write(int address, std::string content);               //磁盘写（地址，内容）
+    static int disk_write(int deviceID, int address, std::string content); //磁盘写（设备ID,地址，内容）
     // -1，没有磁盘设备
     // 0，磁盘繁忙
     // 1，存储成功
-    static std::string disk_read(int address, int size_byte); //磁盘读（地址，内容）
+    static std::string disk_read(int address, int size_byte);               //磁盘读（地址，内容）
+    static std::string disk_read(int deviceID, int address, int size_byte); //磁盘读（设备ID,地址，内容）
     // ""，没有磁盘设备
-    static char keyboard_read(); //获取键盘输入
+    static char keyboard_read();             //获取键盘输入
+    static char keyboard_read(int deviceID); //获取键盘输入(设备ID)
     // '\0'，没有键盘设备
-    static int printer_write(std::string content); //打印机打印（内容）
+    static int printer_write(std::string content);               //打印机打印（内容）
+    static int printer_write(int deviceID, std::string content); //打印机打印（设备ID,内容）
     // -1，没有打印机设备
     // 0，打印机繁忙
     // 1，打印成功
-    static int terminal_write(std::string content); //终端打印（内容）
+    static int terminal_write(std::string content);               //终端打印（内容）
+    static int terminal_write(int deviceID, std::string content); //终端打印（设备ID,内容）
     // -1，没有终端设备
     // 0，终端繁忙
     // 1，打印成功
@@ -39,7 +44,7 @@ public:
 
 //******************************设备管理******************************
 
-class DeviceManager : public DeviceManager_Interface
+class DeviceManager : public DeviceDict
 {
 private:
     static int deviceIDPool;                 //设备ID分配池
@@ -86,28 +91,24 @@ public:
         {
             Device_Disk disk(deviceID);
             deviceList[deviceID] = disk;
-            Device_Disk::addDevice(disk);
             break;
         }
         case DeviceType::keyboard:
         {
             Device_Keyboard keyboard(deviceID);
             deviceList[deviceID] = keyboard;
-            Device_Keyboard::addDevice(keyboard);
             break;
         }
         case DeviceType::printer:
         {
             Device_Printer printer(deviceID);
             deviceList[deviceID] = printer;
-            Device_Printer::addDevice(printer);
             break;
         }
         case DeviceType::terminal:
         {
             Device_Terminal terminal(deviceID);
             deviceList[deviceID] = terminal;
-            Device_Terminal::addDevice(terminal);
             break;
         }
         default:
@@ -140,6 +141,7 @@ public:
                     break;
                 }
                 deviceList.erase(deviceID);
+                w->UpdateContents(w);
                 return 1;
             }
             else
@@ -174,25 +176,42 @@ public:
     {
         return Device_Disk::disk_write(address, content);
     }
-
     static std::string disk_read(int address, int size_byte)
     {
         return Device_Disk::disk_read(address, size_byte);
     }
-
     static char keyboard_read()
     {
         return Device_Keyboard::keyboard_read();
     }
-
     static int printer_write(std::string content)
     {
         return Device_Printer::printer_write(content);
     }
-
     static int terminal_write(std::string content)
     {
         return Device_Terminal::terminal_write(content);
+    }
+
+    static int disk_write(int deviceID, int address, std::string content)
+    {
+        return Device_Disk::disk_write(deviceID, address, content);
+    }
+    static std::string disk_read(int deviceID, int address, int size_byte)
+    {
+        return Device_Disk::disk_read(address, size_byte);
+    }
+    static char keyboard_read(int deviceID)
+    {
+        return Device_Keyboard::keyboard_read(deviceID);
+    }
+    static int printer_write(int deviceID, std::string content)
+    {
+        return Device_Printer::printer_write(deviceID, content);
+    }
+    static int terminal_write(int deviceID, std::string content)
+    {
+        return Device_Terminal::terminal_write(deviceID, content);
     }
 };
 
@@ -209,9 +228,18 @@ int DeviceManager::deviceIDPool = 0;
 std::map<int, Device> DeviceManager::deviceList;
 
 //******************************测试部分******************************
+//using namespace std;
 
-int main(void)
-{
-    DeviceManager::getDeviceList(DeviceDict::DeviceType::all);
-    return 0;
-}
+//int main(void)
+//{
+//    Device_Disk disk(22);
+//    cout << "ID:\t\t" << disk.getID() << endl;
+//    cout << "name:\t\t" << disk.getName() << endl;
+//    cout << "type:\t\t" << DeviceDict::deviceTypeString(disk.getType()) << endl;
+//    cout << "state:\t\t" << DeviceDict::deviceStateTypeString(disk.getState()) << endl;
+//    cout << "IDstring:\t" << disk.getIDString() << endl;
+
+//    DeviceManager::addDevice(DeviceDict::disk);
+
+//    return 0;
+//}

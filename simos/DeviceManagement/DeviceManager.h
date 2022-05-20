@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DEVICEMANAGER_H
+#define DEVICEMANAGER_H
 
 #include <map>
 #include <limits>
@@ -6,9 +7,9 @@
 #include <string>
 #include <cstdlib>
 #include <iostream>
-
+#include <dvmainwindow.h>
+extern DVMainWindow* w;
 //******************************类型定义******************************
-
 class DeviceDict //设备词典
 {
 public:
@@ -60,3 +61,4 @@ public:
         }
     }
 };
+#endif
