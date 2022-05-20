@@ -33,6 +33,7 @@ class commandK {
 public:
     static const std::regex mode;
     static const std::regex searchMode;
+    static const syd::regex searchModeString;
 
     static bool match(const std::string &str) {
         return std::regex_match(str, mode);
@@ -114,8 +115,9 @@ public:
 
 const std::regex commandC::mode{"^C\\s*[1-9][0-9]*\\s*$"};
 const std::regex commandC::searchMode{"[1-9][0-9]*"};
-const std::regex commandK::mode{R"(^K\s*[1-9][0-9]*\s*[1-9][0-9]*)"};
+const std::regex commandK::mode{R"(^K\s*[1-9][0-9]*\s*.+)"};
 const std::regex commandK::searchMode{"[1-9][0-9]*"};
+const std::regex commandK::searchModeString{"[^\\s]+$"};
 const std::regex commandP::mode{R"(^P\s*(0|[1-9][0-9]*)\s*[1-9][0-9]*\s*$)"};
 const std::regex commandP::searchMode{"[0-9]+"};
 const std::regex commandR::mode{
