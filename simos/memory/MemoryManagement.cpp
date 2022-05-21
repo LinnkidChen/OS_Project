@@ -133,18 +133,21 @@ void memory::MemoryPool::Deallocate(Pointer<void> pointer) {
     size_t virtual_page_num = page_table[page->page_num];
     page_table[page->page_num] = -1;
 
-    page_type v_page = virtual_pages[virtual_page_num];
-    auto v_group = static_cast<group_type *>(v_page.m_group);
-    for (auto &i : *v_group) {
-        i->m_group = nullptr;
-        free_virtual_pages.push(i);
-    }
-
     auto group = static_cast<group_type *>(page->m_group);
     for (auto &i : *group) {
         i->m_group = nullptr;
         m_free_pages.push(i);
     }
+
+
+//    auto v_page = &virtual_pages[virtual_page_num];
+//    auto v_group = static_cast<group_type *>(v_page->m_group);
+//    for (auto &i : *v_group) {
+//        i->m_group = nullptr;
+//        free_virtual_pages.push(i);
+//    }
+
+
 
     group->clear();
     m_free_groups.push(group);
