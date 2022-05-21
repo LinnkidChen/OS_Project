@@ -1,0 +1,3 @@
+/Users/lilonghao/Desktop/MyOS/build/CMakeFiles/diskManagement.dir
+/Users/lilonghao/Desktop/MyOS/build/CMakeFiles/edit_cache.dir
+/Users/lilonghao/Desktop/MyOS/build/CMakeFiles/rebuild_cache.dir

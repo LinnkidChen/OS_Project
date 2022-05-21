@@ -1,0 +1,27 @@
+[
+{
+  "directory": "/Users/lilonghao/Desktop/MyOS/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -std=gnu++20 -o CMakeFiles/diskManagement.dir/main.cpp.o -c /Users/lilonghao/Desktop/MyOS/main.cpp",
+  "file": "/Users/lilonghao/Desktop/MyOS/main.cpp"
+},
+{
+  "directory": "/Users/lilonghao/Desktop/MyOS/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -std=gnu++20 -o CMakeFiles/diskManagement.dir/file_manage/FCB.cpp.o -c /Users/lilonghao/Desktop/MyOS/file_manage/FCB.cpp",
+  "file": "/Users/lilonghao/Desktop/MyOS/file_manage/FCB.cpp"
+},
+{
+  "directory": "/Users/lilonghao/Desktop/MyOS/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -std=gnu++20 -o CMakeFiles/diskManagement.dir/file_manage/disk.cpp.o -c /Users/lilonghao/Desktop/MyOS/file_manage/disk.cpp",
+  "file": "/Users/lilonghao/Desktop/MyOS/file_manage/disk.cpp"
+},
+{
+  "directory": "/Users/lilonghao/Desktop/MyOS/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -std=gnu++20 -o CMakeFiles/diskManagement.dir/file_manage/disk_manage.cpp.o -c /Users/lilonghao/Desktop/MyOS/file_manage/disk_manage.cpp",
+  "file": "/Users/lilonghao/Desktop/MyOS/file_manage/disk_manage.cpp"
+},
+{
+  "directory": "/Users/lilonghao/Desktop/MyOS/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -std=gnu++20 -o CMakeFiles/diskManagement.dir/file_manage/file.cpp.o -c /Users/lilonghao/Desktop/MyOS/file_manage/file.cpp",
+  "file": "/Users/lilonghao/Desktop/MyOS/file_manage/file.cpp"
+}
+]
