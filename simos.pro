@@ -16,6 +16,10 @@ SOURCES += \
      simos/MemorySimulateWindow.cpp \
      simos/ProcessSimulateWindow.cpp \
      simos/compile/Compiler.cpp \
+     simos/file_manage/FCB.cpp \
+     simos/file_manage/disk.cpp \
+     simos/file_manage/disk_manage.cpp \
+     simos/file_manage/file.cpp \
      simos/main.cpp \
      simos/MainWindow.cpp \
      simos/memory/MemoryManagement.cpp \
@@ -33,6 +37,12 @@ HEADERS += \
      simos/MemorySimulateWindow.h \
      simos/ProcessSimulateWindow.h \
      simos/compile/Compiler.h \
+     simos/file_manage/FCB.h \
+     simos/file_manage/disk.h \
+     simos/file_manage/disk_manage.h \
+     simos/file_manage/file.h \
+     simos/file_manage/file_manage.h \
+     simos/file_manage/header.h \
      simos/memory/ConstQueue.h \
      simos/memory/MemoryManagement.h \
      simos/process/Cpu.h \

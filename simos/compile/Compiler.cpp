@@ -1,5 +1,6 @@
 #include "Compiler.h"
 #include "../DeviceManagement/DeviceManager.h"
+#include "../file_manage/file_manage.h"
 #include "../memory/MemoryManagement.h"
 #include "../process/Cpu.h"
 
@@ -279,11 +280,19 @@ auto commandP::interpret(const std::string &src) -> std::vector<Instruction> {
                     offset -= i.size;
                     continue;
                 } else {
-
+                    auto        ptr = memory::Pointer<char>(i.ptr);
+                    std::string buffer(i.size, '\0');
+                    for (size_t j = 0; j < i.size; ++j)
+                        buffer[j] = ptr[j];
+                    std::string_view sv = buffer;
+                    if (sv.size() >= static_cast<size_t>(offset))
+                        sv.remove_prefix(offset);
+                    else
+                        sv = std::string_view();
+                    DeviceManager::terminal_write(std::string(sv));
                     break;
                 }
             }
-            // TODO call console print API
         });
         return true;
     };
@@ -349,6 +358,28 @@ auto commandR::interpret(const std::string &src) -> std::vector<Instruction> {
                 if (proc == nullptr)
                     return;
 
+                auto file = file_open(file_dir.c_str(), F_READ);
+                if (file < 0) {
+                    qDebug() << "commandR: Failed to open file: "
+                             << file_dir.c_str();
+                } else {
+                    file_seek(file, static_cast<int>(offset), FILE_SEEK_SET);
+                    std::string buffer(size, '\0');
+                    file_read(file, static_cast<size_t>(size), buffer.data());
+                    auto buf = memory::Pointer<char>(
+                        memory::MemoryPool::GetInstance().Allocate(size + 1));
+                    for (size_t i = 0; i < size; ++i)
+                        buf[i] = buffer[i];
+
+                    //                    qDebug() << __FILE_NAME__ << ':' <<
+                    //                    __LINE__ << ' '
+                    //                             << "Read from file " <<
+                    //                             file_dir.c_str() << ": "
+                    //                             << buffer.c_str();
+
+                    file_close(file);
+                }
+
                 // TODO: call file API and memory API
                 proc_mgn.WakeupProcess(proc);
             });
@@ -409,6 +440,20 @@ auto commandW::interpret(const std::string &src) -> std::vector<Instruction> {
                 // Test if this process has been killed
                 if (proc == nullptr)
                     return;
+
+                auto file =
+                    file_open(file_dir.c_str(), F_WRITE | F_TRUNC | F_CREATE);
+                if (file >= 0 && !proc->m_resource.m_memory.empty()) {
+                    auto &mem = proc->m_resource.m_memory.back();
+                    char  buffer[4096]{};
+                    for (size_t i = 0; i < mem.size; ++i) {
+                        buffer[i] = mem.ptr[i];
+                    }
+
+                    file_seek(file, static_cast<int>(offset), FILE_SEEK_SET);
+                    file_write(file, mem.size, buffer);
+                    file_close(file);
+                }
 
                 // TODO: call file API and memory API
                 proc_mgn.WakeupProcess(proc);
