@@ -289,7 +289,7 @@ auto commandP::interpret(const std::string &src) -> std::vector<Instruction> {
                         sv.remove_prefix(offset);
                     else
                         sv = std::string_view();
-                    DeviceManager::terminal_write(std::string(sv));
+                    DeviceManager::printer_write(std::string(sv));
                     break;
                 }
             }

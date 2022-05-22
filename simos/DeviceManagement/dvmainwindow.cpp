@@ -48,8 +48,8 @@ void DVMainWindow::UpdateContents(DVMainWindow* this_){
   char buffer[512]{};
 
   for(auto & i: device_list){
-    snprintf(buffer,sizeof(buffer),"type: %-10dID: %-20sName: %-35sState: %-5d",i.second.getType(),
-             i.second.getIDString().c_str(),i.second.getName().c_str(),i.second.getState());
+    snprintf(buffer,sizeof(buffer),"%-10sID: %-20sName: %-35s%-5s",i.second.deviceTypeString(i.second.getType()).c_str(),
+               i.second.getIDString().c_str(),i.second.getName().c_str(),i.second.deviceStateTypeString(i.second.getState()).c_str());
     this_->ui->devicelist->addItem(QString(buffer));
   }
 
