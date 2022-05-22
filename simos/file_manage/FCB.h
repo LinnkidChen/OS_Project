@@ -4,6 +4,8 @@
 #include "disk.h"
 #include "header.h"
 
+#include <utility>
+
 #define INDEX_NUM 4
 
 class FCB {
@@ -51,8 +53,5 @@ inline void FCB::set_index(Addr addr, int i, bool is_direct) {
     else
         indirectIndex[i] = addr;
 }
-
-// root@0@1@0@-1@-1@-1@-1@-1@-1@-1@-1
-// namenamenamename@504000@0@0@10101010@10101010@10101010@10101010@10101010@10101010@10101010@10101010
 
 #endif

@@ -20,6 +20,8 @@ SOURCES += \
      simos/file_manage/disk.cpp \
      simos/file_manage/disk_manage.cpp \
      simos/file_manage/file.cpp \
+     simos/file_manage/filewindow.cpp \
+     simos/file_manage/window_interface.cpp \
      simos/main.cpp \
      simos/MainWindow.cpp \
      simos/memory/MemoryManagement.cpp \
@@ -42,7 +44,9 @@ HEADERS += \
      simos/file_manage/disk_manage.h \
      simos/file_manage/file.h \
      simos/file_manage/file_manage.h \
+     simos/file_manage/filewindow.h \
      simos/file_manage/header.h \
+     simos/file_manage/window_interface.h \
      simos/memory/ConstQueue.h \
      simos/memory/MemoryManagement.h \
      simos/process/Cpu.h \

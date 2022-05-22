@@ -5,8 +5,6 @@
 #include "disk.h"
 #include "header.h"
 
-#include <memory>
-
 struct o_file {
     std::shared_ptr<FCB> fcb;
     std::vector<Addr>   *disks;

@@ -4,9 +4,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <cstdio>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
+#include <cstring>
+#include <memory>
 
 typedef std::string String;
 typedef int Addr;

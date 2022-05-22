@@ -4,6 +4,7 @@
 #include "process/Cpu.h"
 #include "process/Process.h"
 #include "process/ProcessWindow.h"
+#include "file_manage/filewindow.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -25,9 +26,12 @@ int main(int argc, char *argv[]) {
   //  MainWindow w;
   //  w.show();
 
+  fileWindow file_window;
+  file_window.show();
   ProcessWindow proc_window;
   proc_window.show();
   DVMainWindow device_window;
   device_window.show();
+
   return a.exec();
 }

@@ -5,9 +5,9 @@
 
 #define BLOCK_SIZE 1000
 
-#define BLOCK_NUM 100
+// #define BLOCK_NUM 100
 
-// #define BLOCK_NUM 64000
+#define BLOCK_NUM 64000
 
 #define ADDR_PER_BLOCK 125
 

@@ -1,7 +1,5 @@
 #include "disk.h"
 
-#include <iostream>
-
 namespace {
 
 class FileWrapper {
@@ -49,14 +47,11 @@ private:
 } // namespace
 
 size_t disk_write(Addr addr, const char *str, size_t length) {
-    // String disk_name = "DISK/" + std::to_string(addr / BLOCK_SIZE) + ".disk";
-    // FILE *disk = fopen(disk_name.c_str(), "r+");
     FileWrapper disk = fopen(DISK(addr).c_str(), "r+");
     addr %= BLOCK_SIZE;
     fseek(disk, addr * sizeof(char), SEEK_SET);
     if (addr + length > BLOCK_SIZE)
         length = BLOCK_SIZE - addr;
-    // printf("debug-disk_write: %d %d\n",ftell(disk),addr);
     length = fwrite(str, sizeof(char), length, disk);
     return length;
 }
@@ -76,7 +71,6 @@ int disk_size(Addr addr) {
 
     fseek(disk, 0, SEEK_END);
     int size = ftell(disk);
-    // printf("debug-disk_size: %d\n", size);
     return size;
 }
 
@@ -119,7 +113,6 @@ size_t disk_writeline(Addr addr, String str, size_t length, int line) {
             fwrite(left_string, sizeof(char), left_len, disk);
         }
     }
-    // printf("debug-disk_writeline: ftell:%ld\n", ftell(disk));
     return length;
 }
 
@@ -139,15 +132,16 @@ String disk_readline(Addr addr, int line) {
             line_count++;
     }
     int str_len;
-    for (str_len = 0;; str_len++) {
-        if (fgetc(disk) == '#')
+    for (str_len = 0; feof(disk) == 0; str_len++) {
+        char ch = fgetc(disk);
+        printf("%c", ch);
+        if (ch == '#')
             break;
     }
-    // printf("debug-disk_readline: str_len %d\n", str_len);
+
     fseek(disk, line_begin, SEEK_SET);
-    char *str = (char *)malloc(sizeof(char) * str_len + 1);
-    fread(str, sizeof(char), str_len, disk);
-    str[str_len] = '\0';
+    std::string str(str_len + 1, '\0');
+    fread(str.data(), str_len, 1, disk);
     String ret(str);
     return ret;
 }
@@ -155,30 +149,15 @@ String disk_readline(Addr addr, int line) {
 int disk_searchline(Addr addr, String name) {
     int match_name(FILE * disk, String name);
 
-    printf("debug-disk_searchline: str %s\n", name.c_str());
-
     if (disk_size(addr) == 0) {
         return -1;
     }
 
-    // std::cerr << __FILE_NAME__ << ":" << __LINE__ << " " << __FUNCTION__
-    //           << " - "
-    //           << "Filename: " << DISK(addr) << '\n';
-
     FileWrapper disk = fopen(DISK(addr).c_str(), "r");
-    // char        buffer[1024]{};
-    // fscanf(disk, "%s", buffer);
-    // std::cerr << __FILE_NAME__ << ":" << __LINE__ << " " << __FUNCTION__
-    //           << " - " << buffer << '\n';
-    // fseek(disk, 0, SEEK_SET);
 
     if (match_name(disk, name)) {
         return 0;
     }
-
-    // std::cerr << __FILE_NAME__ << ":" << __LINE__ << " " << __FUNCTION__
-    //           << " - "
-    //           << "match_name end" << '\n';
 
     char in = fgetc(disk);
     for (int line = 0; feof(disk) == 0;) {
@@ -197,9 +176,6 @@ int match_name(FILE *disk, String name) {
     int flag = 1;
     for (char ch : name) {
         char c = fgetc(disk);
-        // std::cerr << __FILE_NAME__ << ":" << __LINE__ << " " << __FUNCTION__
-        //           << " - "
-        //           << "c: " << c << ", ch: " << ch << '\n';
         if (c != ch) {
             flag = 0;
             break;

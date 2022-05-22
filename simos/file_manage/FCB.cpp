@@ -1,10 +1,5 @@
 #include "FCB.h"
 
-#include <cstring>
-#include <iostream>
-#include <utility>
-#include <vector>
-
 namespace {
 
 String separate_tail(String &str) {
@@ -33,17 +28,14 @@ FCB::FCB(String name, bool isDir, bool isRunable)
 }
 
 String FCB::create(String str) {
+    if (strlen(str.c_str()) == 0)
+        return {};
+
     for (int i = INDEX_NUM - 1; i >= 0; i--) {
         this->indirectIndex[i] = std::stoi(separate_tail(str));
-        // std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__
-        //           << ": "
-        //           << "Separated str: " << str << '\n';
     }
     for (int i = INDEX_NUM - 1; i >= 0; i--) {
         this->directIndex[i] = std::stoi(separate_tail(str));
-        // std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__
-        //           << ": "
-        //           << "Separated str: " << str << '\n';
     }
 
     this->runable  = std::stoi(separate_tail(str));
@@ -60,8 +52,6 @@ FCB::FCB(String str)
       directIndex{},
       indirectIndex{},
       filename(create(str)) {
-    // std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__ << ": "
-    //           << "filename: " << filename << '\n';
 }
 
 FCB::FCB(const FCB &other)

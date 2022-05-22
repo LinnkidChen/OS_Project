@@ -1,28 +1,16 @@
 #include "file.h"
 #include "file_manage.h"
 
-#include <cstring>
-#include <iostream>
-#include <memory>
-
 std::vector<o_file *> filelist;
 
 Handle add(const FCB &fcb, int permission, Addr address, int line) {
     auto *f = (o_file *)malloc(sizeof(o_file));
     memset(f, 0, sizeof(o_file));
 
-    // std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__
-    //           << " - "
-    //           << "FCB: filename: " << fcb.filename << '\n';
-
-    f->fcb        = std::make_shared<FCB>(fcb);
+    f->fcb = std::make_shared<FCB>(fcb);
     f->permission = permission;
-    f->address    = address;
-    f->line       = line;
-
-    // std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__
-    //           << " - "
-    //           << "FCB: filename: " << f->fcb->filename << '\n';
+    f->address = address;
+    f->line = line;
 
     // 载入disks
     f->disks = new std::vector<Addr>;
@@ -48,7 +36,7 @@ Handle add(const FCB &fcb, int permission, Addr address, int line) {
             }
         }
     }
-    // printf("debug-add: block_num %d\n", block_num);
+
     if (block_num <= INDEX_NUM) {
         for (int i = 0; i < block_num; i++) {
             if (f->fcb->direct_index(i) == -1) {
@@ -61,7 +49,7 @@ Handle add(const FCB &fcb, int permission, Addr address, int line) {
         for (int i = 0; i < INDEX_NUM; i++)
             f->disks->push_back(f->fcb->direct_index(i));
         String str;
-        Addr   addr;
+        Addr addr;
         for (int i = 0; i < block_num - INDEX_NUM; i++) {
             addr = f->fcb->indirect_index(i / ADDR_PER_BLOCK);
             if (addr == -1)
@@ -90,25 +78,20 @@ Handle file_open(const char *filename, int permission) {
     }
 
     o_file *sys = filelist[0];
-    String  name(filename);
-    int     line = -1;
-    Addr    addr;
+    String name(filename);
+    int line = -1;
+    Addr addr;
     for (Addr addr_tem : *(sys->disks)) {
         line = disk_searchline(addr_tem, name);
-        std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__
-                  << " - "
-                  << "addr_tem: " << addr_tem << ", searchline: " << line << '\n';
-
-        printf("debug-file_open: line %d\n", line);
         if (line != -1) {
             addr = addr_tem;
             break;
         }
     }
-    // printf("debug-file_open: run\n");
+
     if (line == -1) {
         if (permission & F_CREATE) {
-            FCB    new_file(name, false, false);
+            FCB new_file(name, false, false);
             String fcb_str = new_file.to_string();
             if (disk_size(sys->disks->back()) + fcb_str.size() > BLOCK_SIZE) {
                 expand_a_block(sys);
@@ -122,17 +105,10 @@ Handle file_open(const char *filename, int permission) {
         }
     }
 
-    std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__
-              << " - "
-              << "addr: " << addr << ", line: " << line << '\n';
     FCB fcb(disk_readline(addr, line));
-    std::cerr << __FILE_NAME__ << ":" << __LINE__ << ":" << __FUNCTION__
-              << " - "
-              << "FCB: filename: " << fcb.filename << '\n';
     Handle h = add(fcb, permission, addr, line);
-    printf("debug-file_open: name %s\n", filelist[h]->fcb->filename.c_str());
+
     if (permission & F_TRUNC) {
-        printf("debug-file_open: trunc\n");
         for (Addr addr : *filelist[h]->disks) {
             recycle_block(addr);
         }
@@ -145,8 +121,7 @@ Handle file_open(const char *filename, int permission) {
         filelist[h]->ptr = 0;
         fcb.check_size();
     }
-    printf("debug-file_open: name %s\n", filelist[h]->fcb->filename.c_str());
-    printf("debug-handle: %d\n", h);
+
     return h;
 }
 
@@ -168,10 +143,9 @@ int file_seek(Handle h, int offset, int mode) {
 }
 
 int file_write(Handle h, size_t length, const void *str) {
-    auto    ptr = static_cast<const char *>(str);
-    o_file *f   = filelist[h];
-    for (int i = 0; i < 4; i++)
-        printf("debug-file_write %d\n", f->fcb->direct_index(i));
+    auto ptr = static_cast<const char *>(str);
+    o_file *f = filelist[h];
+
     if ((f->permission & F_WRITE) == 0)
         return -1;
 
@@ -182,7 +156,6 @@ int file_write(Handle h, size_t length, const void *str) {
         }
     }
 
-    printf("debug-file_write: run\n");
     Addr addr = locate(f);
 
     for (size_t l = 0, len = length; len > 0;) {
@@ -198,8 +171,8 @@ int file_write(Handle h, size_t length, const void *str) {
 }
 
 int file_read(Handle h, size_t length, void *str) {
-    auto    ptr = static_cast<char *>(str);
-    o_file *f   = filelist[h];
+    auto ptr = static_cast<char *>(str);
+    o_file *f = filelist[h];
     if ((f->permission & F_READ) == 0)
         return -1;
 
@@ -219,12 +192,15 @@ int file_read(Handle h, size_t length, void *str) {
 }
 
 int file_close(Handle h) {
+    o_file *f = filelist[h];
+    String fcb = f->fcb->to_string();
+    disk_writeline(f->address, fcb.c_str(), fcb.size(), f->line);
     free(filelist[h]);
     return 1;
 }
 
 Addr locate(o_file *f) {
-    int block_No     = f->ptr / BLOCK_SIZE;
+    int block_No = f->ptr / BLOCK_SIZE;
     int block_offset = f->ptr % BLOCK_SIZE;
     return f->disks->at(block_No) + block_offset;
 }
@@ -232,23 +208,18 @@ Addr locate(o_file *f) {
 void expand_a_block(o_file *f) {
     Addr addr = assign_block();
     f->disks->push_back(addr);
-    // printf("debug-expand_a_block: name %s\n", f->fcb->filename.c_str());
     if (f->disks->size() <= INDEX_NUM) {
         f->fcb->set_index(addr, f->disks->size() - 1, true);
     } else {
         int block_indrt = f->disks->size() - INDEX_NUM;
-        int indrt_num   = block_indrt / ADDR_PER_BLOCK;
+        int indrt_num = block_indrt / ADDR_PER_BLOCK;
         if (block_indrt % ADDR_PER_BLOCK == 1) {
             f->fcb->set_index(assign_block(), indrt_num, false);
         }
         disk_writeline(f->fcb->indirect_index(indrt_num), addr,
                        block_indrt % ADDR_PER_BLOCK);
     }
-    printf("debug-expand_a_block: run\n");
-    printf("debug-expand_a_block: name %s\n", f->fcb->filename.c_str());
+
     String str = f->fcb->to_string();
     disk_writeline(f->address, str, str.length(), f->line);
-    for (Addr a : *f->disks)
-        printf("debug-expand_a_block: %s disks %d\n",
-               f->fcb->to_string().c_str(), a);
 }
