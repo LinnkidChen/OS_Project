@@ -1,6 +1,8 @@
 #include "Process.h"
 #include "Cpu.h"
 
+#include <QDebug>
+
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -65,6 +67,7 @@ void ProcessScheduler::InstructionDone(CpuInstruction &inst, int64_t time_spent,
             else {
                 process->m_pcb.m_state = ProcessState::Waiting;
                 size_t next_queue_id   = inst.m_last_queue + 1;
+                process->m_pcb.m_priority = next_queue_id;
                 if (next_queue_id >= std::size(m_queues))
                     next_queue_id = std::size(m_queues) - 1;
                 process->m_pcb.m_time_left =
@@ -128,6 +131,7 @@ ProcessScheduler::StartProcess(std::string              name,
     proc.m_pcb.m_state          = ProcessState::Waiting;
     proc.m_pcb.m_time_left      = NUM_INST_PER_LEVEL;
     proc.m_pcb.m_name           = std::move(name);
+    proc.m_pcb.m_priority       = 0;
 
     int64_t pid      = proc.m_pcb.m_pid;
     auto    result   = m_processes.emplace(pid, std::move(proc));
@@ -137,13 +141,7 @@ ProcessScheduler::StartProcess(std::string              name,
 }
 
 int32_t ProcessScheduler::GetProcessPriority(Process &proc) const noexcept {
-    for (size_t i = 0; i < std::size(m_queues); ++i) {
-        for (auto &p : m_queues[i]) {
-            if (p == std::addressof(proc))
-                return static_cast<int32_t>(i);
-        }
-    }
-    return -1;
+    return static_cast<int32_t>(proc.m_pcb.m_priority);
 }
 
 ProcessScheduler &ProcessScheduler::GetInstance() noexcept {

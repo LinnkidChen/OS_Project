@@ -12,9 +12,6 @@ SOURCES += \
      simos/DeviceManagement/Device.cpp \
      simos/DeviceManagement/DeviceManager.cpp \
      simos/DeviceManagement/dvmainwindow.cpp \
-     simos/FileSystemSimulateWindow.cpp \
-     simos/MemorySimulateWindow.cpp \
-     simos/ProcessSimulateWindow.cpp \
      simos/compile/Compiler.cpp \
      simos/file_manage/FCB.cpp \
      simos/file_manage/disk.cpp \
@@ -23,8 +20,8 @@ SOURCES += \
      simos/file_manage/filewindow.cpp \
      simos/file_manage/window_interface.cpp \
      simos/main.cpp \
-     simos/MainWindow.cpp \
      simos/memory/MemoryManagement.cpp \
+     simos/memory/memorysimulatewindow.cpp \
      simos/process/Cpu.cpp \
      simos/process/Process.cpp \
      simos/process/ProcessWindow.cpp
@@ -34,10 +31,6 @@ HEADERS += \
      simos/DeviceManagement/DeviceDict.h \
      simos/DeviceManagement/DeviceManager.h \
      simos/DeviceManagement/dvmainwindow.h \
-     simos/FileSystemSimulateWindow.h \
-     simos/MainWindow.h \
-     simos/MemorySimulateWindow.h \
-     simos/ProcessSimulateWindow.h \
      simos/compile/Compiler.h \
      simos/file_manage/FCB.h \
      simos/file_manage/disk.h \
@@ -49,12 +42,14 @@ HEADERS += \
      simos/file_manage/window_interface.h \
      simos/memory/ConstQueue.h \
      simos/memory/MemoryManagement.h \
+     simos/memory/memorysimulatewindow.h \
      simos/process/Cpu.h \
      simos/process/Process.h \
      simos/process/ProcessWindow.h
 
 FORMS += \
      simos/DeviceManagement/dvmainwindow.ui \
+     simos/memory/memorysimulatewindow.ui \
      simos/process/ProcessWindow.ui \
      ui/FileSystemSimulateWindow.ui \
      ui/MainWindow.ui \

@@ -35,6 +35,7 @@ struct ProcessMeta {
     std::string  m_name;
     int64_t      m_start_time; // process start time(clock circle)
     int64_t      m_time_left;  // time slice left
+    size_t       m_priority = 0;
 };
 
 struct ProcessResource {
